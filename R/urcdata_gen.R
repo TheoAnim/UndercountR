@@ -1,5 +1,5 @@
-###############function to generate data###########################
-####################################
+#' @title Function to generate data
+#' @export
 urcdata_gen <- function(lambda, p, pi = 0, c = 1, nobs = 100, nv = 0, fun) {
   set.seed(2)
   if (fun == "rpois") {

@@ -1,4 +1,6 @@
-#data is a list with observed y, validation and true count
+#' @title poisson model
+#' @export
+
 urc_mcmc <- function(data) {
   data$n_obs <- length(data$yobs)
   data$n_valdata <- length(data$ystar)
