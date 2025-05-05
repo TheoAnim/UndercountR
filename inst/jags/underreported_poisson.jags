@@ -1,0 +1,17 @@
+model {
+        #data model
+        for(i in 1:n_obs){
+            yobs[i] ~ dpois(mu)
+          }
+        #validation data
+        for(j in 1:n_valdata){
+          ystar[j] ~ dpois(lambda)
+          yval[j] ~ dbinom(p, ystar[j])
+        }
+
+        #prior
+        lambda ~ dgamma(0.01, 0.01)
+        p ~ dunif(0, 1)
+        mu <- lambda * p
+    }
+

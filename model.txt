@@ -1,0 +1,13 @@
+{
+        #data model
+        for(i in 1:n){
+            y[i] ~ dpois(mu)
+          }
+        }
+        #validation data
+        for(j in 1:nv){
+          ystar[j] ~ dpois(lambda)
+          yv[i] ~ dbinom(p, ystar[j])
+        }
+    }
+    
