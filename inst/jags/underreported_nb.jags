@@ -1,0 +1,17 @@
+model{
+ for(i in 1:n_obs){
+            yobs[i] ~ dnegbin(prob, c)
+          }
+        #validation data
+        for(j in 1:n_valdata){
+          ystar[j] ~ dnegbin(prob_ystar, c)
+          yval[j] ~ dbin(p, ystar[j])
+        }
+
+        #hyperpriors
+        prob <- c/(c + lambda * p)
+        c ~ dunif(0, 20)
+        lambda ~ dgamma(0.01, 0.01)
+        p ~ dunif(0, 1)
+        prob_ystar <- c/(c + lambda)
+}
