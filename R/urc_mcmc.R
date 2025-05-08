@@ -1,7 +1,6 @@
 #' @title poisson model
 #' @export
 #' @param data A named list of data to pass to JAGS
-#' @param parameters_poisson Character vector of parameters to save for Poisson model
 #'
 #' @return A list with model outputs and DICs
 
@@ -24,7 +23,7 @@ urc_mcmc <- function(data) {
       data = data,
       parameters.to.save = parameters,
       n.chains = 3,
-      n.iter = 8e3,
+      n.iter = 8e4,
       quiet = TRUE,
       DIC = TRUE,
       RNGname = "Wichmann-Hill",
@@ -33,7 +32,7 @@ urc_mcmc <- function(data) {
   }
   poisson_model <- fit_model("underreported_poisson.jags", parameters_poisson)
   zip_model <- fit_model("underreported_zip.jags", parameters_zip)
-  nb_model <- fit_model("underreported_nb.jags", parameters_zip)
+  nb_model <- fit_model("underreported_nb.jags", parameters_nb)
   list(poisson = poisson_model,
        zip = zip_model,
        negbinom = nb_model)

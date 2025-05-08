@@ -1,4 +1,5 @@
 model{
+  #observed data
  for(i in 1:n_obs){
             yobs[i] ~ dpois(mu[i])
             mu[i] = lambda*p*is_zero[i] + 0.0001
@@ -6,14 +7,17 @@ model{
           }
         #validation data
         for(j in 1:n_valdata){
-          ystar[j] ~ dpois(mu[j])
+          ystar[j] ~ dpois(mu_star[j])
           yval[j] ~ dbinom(p, ystar[j])
           mu_star[j] <- lambda * is_zerostar[j] + 0.0001
-          is_zerostar[j] ~ dbern(1 - pi)
+          is_zerostar[j] ~ dbern(1 - pi2)
         }
 
         #hyperpriors
         pi ~ dunif(0, 1)
-        lambda ~ dgamma(0.01, 0.01)
+        lambda ~ dgamma(0.0001, 0.0001)
         p ~ dunif(0, 1)
+        pi2 ~ dunif(0, 1)
 }
+
+

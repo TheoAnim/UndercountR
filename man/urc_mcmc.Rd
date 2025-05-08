@@ -8,8 +8,6 @@ urc_mcmc(data)
 }
 \arguments{
 \item{data}{A named list of data to pass to JAGS}
-
-\item{parameters_poisson}{Character vector of parameters to save for Poisson model}
 }
 \value{
 A list with model outputs and DICs
