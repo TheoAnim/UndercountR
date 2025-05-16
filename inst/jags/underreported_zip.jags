@@ -10,14 +10,13 @@ model{
           ystar[j] ~ dpois(mu_star[j])
           yval[j] ~ dbinom(p, ystar[j])
           mu_star[j] <- lambda * is_zerostar[j] + 0.0001
-          is_zerostar[j] ~ dbern(1 - pi2)
+          is_zerostar[j] ~ dbern(1 - pi)
         }
 
         #hyperpriors
         pi ~ dunif(0, 1)
         lambda ~ dgamma(0.0001, 0.0001)
         p ~ dunif(0, 1)
-        pi2 ~ dunif(0, 1)
 }
 
 

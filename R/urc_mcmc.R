@@ -5,6 +5,7 @@
 #' @return A list with model outputs and DICs
 
 urc_mcmc <- function(data) {
+  future::plan(future::multisession)
   parameters_poisson <-  c("mu", "lambda", "p")
   parameters_zip <- c("lambda", "p", "pi")
   parameters_nb <- c("lambda", "c", "p")
@@ -30,10 +31,28 @@ urc_mcmc <- function(data) {
       inits = NULL
     )
   }
-  poisson_model <- fit_model("underreported_poisson.jags", parameters_poisson)
-  zip_model <- fit_model("underreported_zip.jags", parameters_zip)
-  nb_model <- fit_model("underreported_nb.jags", parameters_nb)
-  list(poisson = poisson_model,
-       zip = zip_model,
-       negbinom = nb_model)
+  # poisson_model <- fit_model("underreported_poisson.jags", parameters_poisson)
+  # zip_model <- fit_model("underreported_zip.jags", parameters_zip)
+  # nb_model <- fit_model("underreported_nb.jags", parameters_nb)
+  # list(poisson = poisson_model,
+  #      zip = zip_model,
+  #      negbinom = nb_model)
+
+model_files <- c("underreported_poisson.jags", "underreported_zip.jags", "underreported_nb.jags")
+model_params <- list(parameters_poisson, parameters_zip, parameters_nb)
+model_names <- c("poisson", "zip", "negbinom")
+# Parallel model fitting
+model_outputs <- purrr::map2(model_files, model_params, fit_model)
+models <- rlang::set_names(model_outputs, model_names)
+DICs <- tibble(
+  model_names,
+  DIC = c(
+    models$poisson$BUGSoutput$DIC,
+    models$zip$BUGSoutput$DIC,
+    models$negbinom$BUGSoutput$DIC
+  )
+)
+
+list(models, DICs)
+
 }
