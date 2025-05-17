@@ -1,5 +1,5 @@
 #' @title model fitting for underreporting count data
-#' @export
+#' @export urc_mcmc
 #' @param data A named list of data to pass to JAGS
 #' @param thresh decision rule for choosing parsimonious model when DICs are very close
 #' @param lambda_a shape for prior on expected number of true counts, lambda
@@ -81,9 +81,9 @@ urc_mcmc <- function(data, thresh = 2, lambda_a = 0.1, lambda_b = 0.1) {
                    "underreported_zip.jags",
                    "underreported_nb.jags")
   model_params <- list(parameters_poisson, parameters_zip, parameters_nb)
-  model_names <- c("poisson", "zip", "negbinom")
   # Parallel model fitting
   model_outputs <- purrr::map2(model_files, model_params, fit_model)
+  model_names <- c("poisson", "zip", "negbinom")
   models <- rlang::set_names(model_outputs, model_names)
   DICs <- tibble(
     model_names,
