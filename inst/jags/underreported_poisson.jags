@@ -11,7 +11,7 @@ model {
 
         #prior
         lambda ~ prior_lambda
-        p ~ dunif(0, 1)
+        p ~ prior_p
         mu <- lambda * p
     }
 

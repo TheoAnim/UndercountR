@@ -10,8 +10,8 @@ model{
 
         #hyperpriors
         prob <- c/(c + lambda * p)
-        c ~ dunif(0, 20)
+        c ~ prior_c
         lambda ~  prior_lambda
-        p ~ dunif(0, 1)
+        p ~ prior_p
         prob_ystar <- c/(c + lambda)
 }

@@ -4,19 +4,30 @@
 \alias{urc_mcmc}
 \title{model fitting for underreporting count data}
 \usage{
-urc_mcmc(data, thresh = 2, lambda_a = 0.1, lambda_b = 0.1)
+urc_mcmc(
+  data,
+  thresh = 2,
+  den_lambda = "dgamma(0.1,  0.1)",
+  den_c = "dunif(0, 20)",
+  den_p = "dunif(0,1)",
+  den_pi = "dunif(0, 1)"
+)
 }
 \arguments{
 \item{data}{A named list of data to pass to JAGS}
 
 \item{thresh}{decision rule for choosing parsimonious model when DICs are very close}
 
-\item{lambda_a}{shape for prior on expected number of true counts, lambda}
+\item{den_lambda}{prior on expected true counts, lambda}
 
-\item{lambda_b}{rate for prior on expected number of true counts, lambda}
+\item{den_c}{prior on dispersion parameter, c of negbinom}
+
+\item{den_p}{prior on reporting probability, p}
+
+\item{den_pi}{prior on zero-inflated parameter, pi of zip}
 }
 \value{
-A list with model outputs, DICs and model with smallest DIC
+A named list of fitted models, DICs and model with smallest DIC
 }
 \description{
 model fitting for underreporting count data

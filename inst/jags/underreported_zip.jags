@@ -14,9 +14,9 @@ model{
         }
 
         #hyperpriors
-        pi ~ dunif(0, 1)
+        pi ~ prior_pi
         lambda ~  prior_lambda
-        p ~ dunif(0, 1)
+        p ~ prior_p
 }
 
 
