@@ -15,7 +15,7 @@ model{
 
         #hyperpriors
         pi ~ dunif(0, 1)
-        lambda ~ dgamma(0.0001, 0.0001)
+        lambda ~  prior_lambda
         p ~ dunif(0, 1)
 }
 

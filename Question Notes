@@ -1,8 +1,0 @@
-Questions:
-
-Clarify what an informative, non-informative, weakly,
-  vague priors would be in the context of the problem
-  we are trying to solve
-
-
-My zip is using the modified jags where either the poisson part is from a lammbda or the structual zero
