@@ -7,10 +7,10 @@
 urc_mcmc(
   data,
   thresh = 2,
-  den_lambda = "dgamma(0.1, 0.1)",
-  den_c = "dunif(0, 20)",
-  den_p = "dunif(0, 1)",
-  den_pi = "dunif(0, 1)"
+  den_lambda = dgamma(0.1, 0.1),
+  den_c = dunif(0, 20),
+  den_p = dunif(0, 1),
+  den_pi = dunif(0, 1)
 )
 }
 \arguments{
