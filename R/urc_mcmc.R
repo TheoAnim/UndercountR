@@ -1,9 +1,9 @@
 #' @title model fitting for underreported count data
 #' @param data A named list of data to pass to JAGS
 #' @param thresh decision rule for choosing parsimonious model when DICs are very close
-#' @param den_lambda prior on expected true counts, lambda
+#' @param den_lambda prior on lambda
 #' @param den_p prior on reporting probability, p
-#' @param den_pi prior on zero-inflated parameter, pi of zip
+#' @param den_pi prior on zero-inflation parameter, pi of zip
 #' @param den_c prior on dispersion parameter, c of negbinom
 #' @return A named list of fitted models, DICs and model with smallest DIC
 #' @export
@@ -33,7 +33,7 @@ urc_mcmc <- function(data,
                              package = "Rbayesucsel",
                              mustWork = TRUE)
     lines <- readLines(file_path)
-    #alter priors in jags.txt
+    #alter to user-specified priors
     if (grepl("nb", file_name)) {
       lines <- gsub(
         pattern = "prior_c",

@@ -18,7 +18,7 @@ urc_mcmc(
 
 \item{thresh}{decision rule for choosing parsimonious model when DICs are very close}
 
-\item{den_lambda}{prior on expected true counts, lambda}
+\item{den_lambda}{prior on lambda}
 
 \item{den_c}{prior on dispersion parameter, c of negbinom}
 
