@@ -2,14 +2,14 @@
 % Please edit documentation in R/urc_mcmc.R
 \name{urc_mcmc}
 \alias{urc_mcmc}
-\title{model fitting for underreporting count data}
+\title{model fitting for underreported count data}
 \usage{
 urc_mcmc(
   data,
   thresh = 2,
-  den_lambda = "dgamma(0.1,  0.1)",
+  den_lambda = "dgamma(0.1, 0.1)",
   den_c = "dunif(0, 20)",
-  den_p = "dunif(0,1)",
+  den_p = "dunif(0, 1)",
   den_pi = "dunif(0, 1)"
 )
 }
@@ -30,5 +30,5 @@ urc_mcmc(
 A named list of fitted models, DICs and model with smallest DIC
 }
 \description{
-model fitting for underreporting count data
+model fitting for underreported count data
 }

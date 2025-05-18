@@ -1,4 +1,4 @@
-#' @title model fitting for underreporting count data
+#' @title model fitting for underreported count data
 #' @export
 #' @param data A named list of data to pass to JAGS
 #' @param thresh decision rule for choosing parsimonious model when DICs are very close
@@ -12,9 +12,9 @@
 
 urc_mcmc <- function(data,
                      thresh = 2,
-                     den_lambda = "dgamma(0.1,  0.1)",
+                     den_lambda = "dgamma(0.1, 0.1)",
                      den_c = "dunif(0, 20)",
-                     den_p = "dunif(0,1)",
+                     den_p = "dunif(0, 1)",
                      den_pi = "dunif(0, 1)") {
   #setup to parallize
   future::plan(future::multisession)
