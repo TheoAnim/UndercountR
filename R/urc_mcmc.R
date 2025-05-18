@@ -1,5 +1,4 @@
 #' @title model fitting for underreported count data
-#' @export
 #' @param data A named list of data to pass to JAGS
 #' @param thresh decision rule for choosing parsimonious model when DICs are very close
 #' @param den_lambda prior on expected true counts, lambda
@@ -7,7 +6,7 @@
 #' @param den_pi prior on zero-inflated parameter, pi of zip
 #' @param den_c prior on dispersion parameter, c of negbinom
 #' @return A named list of fitted models, DICs and model with smallest DIC
-
+#' @export
 
 
 urc_mcmc <- function(data,
