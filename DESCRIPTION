@@ -5,7 +5,7 @@ Authors@R:
     person("Theophilus", "Anim Bediako", , "theophilus.animbediako@gmail.com", role = c("aut", "cre"))
 Description: Tools for modeling underreported count data using Bayesian inference. 
     Supports Poisson, Negative Binomial, and Zero-Inflated models with optional validation data.
-License: MIT + file LICENSE
+License: MIT
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
