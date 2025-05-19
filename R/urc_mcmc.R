@@ -30,7 +30,7 @@ urc_mcmc <- function(data,
     data$n_valdata <- length(data$ystar)
     
     file_path <- system.file(file.path("jags", file_name),
-                             package = "Rbayesucsel",
+                             package = "UndercountR",
                              mustWork = TRUE)
     lines <- readLines(file_path)
     #alter to user-specified priors

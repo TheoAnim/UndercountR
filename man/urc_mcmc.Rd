@@ -24,7 +24,7 @@ urc_mcmc(
 
 \item{den_p}{prior on reporting probability, p}
 
-\item{den_pi}{prior on zero-inflated parameter, pi of zip}
+\item{den_pi}{prior on zero-inflation parameter, pi of zip}
 }
 \value{
 A named list of fitted models, DICs and model with smallest DIC

@@ -1,18 +1,18 @@
 
-# Rbayesucsel
+# UndercountR
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of Rbayesucsel is to ...
+The goal of UndercountR is to ...
 
 ## Installation
 
-You can install the development version of Rbayesucsel from [GitHub](https://github.com/) with:
+You can install the development version of UndercountR from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")
-pak::pak("TheoAnim/Rbayesucsel")
+pak::pak("TheoAnim/UndercountR")
 ```
 
 ## Example
@@ -20,7 +20,7 @@ pak::pak("TheoAnim/Rbayesucsel")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(Rbayesucsel)
+library(UndercountR)
 ## basic example code
 ```
 
