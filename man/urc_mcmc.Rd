@@ -13,7 +13,7 @@ urc_mcmc(
   den_pi = "dunif(0, 1)",
   n_iter = 80000,
   n_chains = 3,
-  n_burnin = 8000/2,
+  n_burnin = 80000/2,
   seed = 123,
   inits = NULL
 )
@@ -46,7 +46,7 @@ A named list with the following components:
 \describe{
 \item{models}{A list of fitted model objects (class \code{rjags}).}
 \item{DICs}{A named numeric vector of DIC values for each model.}
-\item{best_model}{The model with the lowest (adjusted) DIC.}
+\item{best_model}{The model with the lowest DIC.}
 }
 }
 \description{

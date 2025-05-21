@@ -21,7 +21,7 @@
 #' \describe{
 #'   \item{models}{A list of fitted model objects (class \code{rjags}).}
 #'   \item{DICs}{A named numeric vector of DIC values for each model.}
-#'   \item{best_model}{The model with the lowest (adjusted) DIC.}
+#'   \item{best_model}{The model with the lowest DIC.}
 #' }
 #'
 #' @export
