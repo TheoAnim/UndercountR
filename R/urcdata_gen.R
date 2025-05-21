@@ -9,10 +9,12 @@ urcdata_gen <- function(lambda, p, pi = 0, c = 1, nobs = 100, nv = 0, fun) {
     ystar <- bizicount::rzip(nv, lambda, pi)
     yv <- rbinom(nv, size = ystar, prob = p)
     y <- bizicount::rzip(nobs, lambda*p, pi)
-  } else{
+  } else if (fun == "rnegbin"){
     ystar <- rnbinom(nv, mu = lambda, size = c)
     yv <- rbinom(nv, size = ystar, prob = p)
     y <- rnbinom(nobs, mu = lambda * p, size = c)
+  } else{
+    stop("fun must be rpois, rzip or rnegbin", call. = FALSE)
   }
   list(
     yval = yv,

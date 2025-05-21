@@ -2,33 +2,55 @@
 % Please edit documentation in R/urc_mcmc.R
 \name{urc_mcmc}
 \alias{urc_mcmc}
-\title{model fitting for underreported count data}
+\title{Fit Models for Underreported Count Data Using JAGS}
 \usage{
 urc_mcmc(
   data,
   thresh = 2,
-  den_lambda = dgamma(0.1, 0.1),
-  den_c = dunif(0, 20),
-  den_p = dunif(0, 1),
-  den_pi = dunif(0, 1)
+  den_lambda = "dgamma(0.1, 0.1)",
+  den_c = "dunif(0, 20)",
+  den_p = "dunif(0, 1)",
+  den_pi = "dunif(0, 1)",
+  n_iter = 80000,
+  n_chains = 3,
+  n_burnin = 8000/2,
+  seed = 123,
+  inits = NULL
 )
 }
 \arguments{
-\item{data}{A named list of data to pass to JAGS}
+\item{data}{A named list containing the data to be passed to the JAGS models.}
 
-\item{thresh}{decision rule for choosing parsimonious model when DICs are very close}
+\item{thresh}{Numeric. Threshold for deciding between models when DICs are close.}
 
-\item{den_lambda}{prior on lambda}
+\item{den_lambda}{A prior distribution for the Poisson or ZIP rate parameter \code{lambda}.}
 
-\item{den_c}{prior on dispersion parameter, c of negbinom}
+\item{den_c}{A prior distribution for the dispersion parameter \code{c} (NB only).}
 
-\item{den_p}{prior on reporting probability, p}
+\item{den_p}{A prior distribution for the reporting probability \code{p}.}
 
-\item{den_pi}{prior on zero-inflation parameter, pi of zip}
+\item{den_pi}{A prior distribution for the zero-inflation probability \code{pi} (ZIP only).}
+
+\item{n_iter}{Integer. Total number of MCMC iterations per chain.}
+
+\item{n_chains}{Integer. Number of MCMC chains.}
+
+\item{n_burnin}{Integer. Number of burn-in iterations to discard.}
+
+\item{seed}{Integer. Random seed for reproducibility.}
+
+\item{inits}{Optional. A function or list specifying initial values for the MCMC.}
 }
 \value{
-A named list of fitted models, DICs and model with smallest DIC
+A named list with the following components:
+\describe{
+\item{models}{A list of fitted model objects (class \code{rjags}).}
+\item{DICs}{A named numeric vector of DIC values for each model.}
+\item{best_model}{The model with the lowest (adjusted) DIC.}
+}
 }
 \description{
-model fitting for underreported count data
+Fits Poisson, zero-inflated Poisson (ZIP), and negative binomial (NB) models
+for underreported count data using JAGS. The function selects the most
+parsimonious model based on the Deviance Information Criterion (DIC).
 }
