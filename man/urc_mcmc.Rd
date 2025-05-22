@@ -12,7 +12,7 @@ urc_mcmc(
   den_p = "dunif(0, 1)",
   den_pi = "dunif(0, 1)",
   n_iter = 80000,
-  n_chains = 3,
+  n_chains = 2,
   n_burnin = 80000/2,
   seed = 123,
   inits = NULL

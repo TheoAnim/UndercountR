@@ -34,7 +34,7 @@ urc_mcmc <- function(data,
                      den_p = "dunif(0, 1)",
                      den_pi = "dunif(0, 1)",
                      n_iter = 8e4,
-                     n_chains = 3,
+                     n_chains = 2,
                      n_burnin = 8e4/2,
                      seed = 123,
                      inits = NULL) {
