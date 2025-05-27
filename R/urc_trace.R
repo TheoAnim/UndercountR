@@ -7,9 +7,8 @@
 #' @export
 #' @examples
 #' \dontrun{
-#' model <- urc_mcmc(data = mydata)
-#' urc_trace(model)
-#' urc_trace(model, parameters = c("lambda", "p"), deviance = FALSE)
+#' output <- urc_mcmc(data = mydata)
+#' urc_density(output$models$poisson)
 #' }
 
 urc_trace <- function(model, parameters = NULL, deviance = FALSE) {

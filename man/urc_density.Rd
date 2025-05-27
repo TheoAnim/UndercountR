@@ -20,7 +20,7 @@ Creates a density plot for each parameter in the BUGS MCMC output.
 }
 \examples{
 \dontrun{
-poisson_model <- urc_mcmc(data = mydata)
-urc_density(poisson_model)
+output <- urc_mcmc(data = mydata)
+urc_density(output$models$poisson)
 }
 }

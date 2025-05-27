@@ -1,0 +1,48 @@
+#' @title Plot HPD Credible Intervals
+#' @description Visualizes the Highest Posterior Density (HPD) intervals for each parameter in the MCMC output.
+#'
+#' @param model A model object returned by \code{UndercountR::urc_mcmc()}.
+#' @param parameters Optional character vector of parameter names to include.
+#' @param level Credible level between 0 and 1 (default is 0.95).
+#'
+#' @return A \code{ggplot} object showing HPD credible intervals.
+#' @export
+#'
+#' @examples
+#' \dontrun{
+#' output <- urc_mcmc(data = mydata)
+#' urc_HPD(output$models$poisson)
+#' }
+
+urc_HPD <- function(model,
+                    parameters = NULL,
+                    level = 0.95) {
+  if (is.null(model$BUGSoutput$sims.matrix)) {
+    stop("The provided model object does not contain 'sims.matrix' MCMC output.")
+  }
+  samples <- as.data.frame(model$BUGSoutput$sims.matrix)
+
+  if (!is.null(parameters)) {
+    samples <- samples[, parameters, drop = FALSE]
+  }
+
+  mcmc_samples <- coda::as.mcmc(samples)
+  hpd <- coda::HPDinterval(mcmc_samples, prob = level)
+  mean_vals <- colMeans(samples)
+
+  plot_data <- tibble::tibble(
+    parameter = factor(rownames(hpd), levels = rownames(hpd)),
+    lower = hpd[, "lower"],
+    upper = hpd[, "upper"],
+    mean = mean_vals
+  )
+
+  ggplot2::ggplot(plot_data, ggplot2::aes(x = parameter)) +
+    ggplot2::geom_pointrange(ggplot2::aes(y = mean, ymin = lower, ymax = upper)) +
+    ggplot2::coord_flip() +
+    ggplot2::labs(
+      title = glue::glue("{level * 100}% HPD Credible Intervals"),
+      x = NULL,
+      y = "Parameter Value"
+    )
+}
