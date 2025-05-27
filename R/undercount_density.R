@@ -1,17 +1,17 @@
 #' @title Plot Posterior Densities
 #' @description Creates a density plot for each parameter in the BUGS MCMC output.
-#'
-#' @param model A model object of class \code{"rjags} returned by \code{UndercountR::urc_mcmc()}.
+#' @param model A model object of class \code{"rjags"} returned by \code{UndercountR::urc_mcmc()}.
 #' @param parameters Optional character vector of parameter names to include in the plot.
 #'                   If \code{NULL} (default), all parameters are plotted except deviance
-#'
 #' @return A \code{ggplot} object showing posterior densities for each parameter.
 #' @export
 #'
 #' @examples
 #' \dontrun{
-#' output <- urc_mcmc(data = mydata)
-#' urc_density(output$models$poisson)
+#'   output <- urc_mcmc(data = mydata)
+#'
+#'   # Plot posterior densities for the Poisson model
+#'   urc_density(output$models$poisson)
 #' }
 
 
@@ -22,7 +22,6 @@ urc_density <- function(model,
   if (!deviance) {
     samples <- dplyr::select(samples, -deviance)
   }
-
   samples <- samples |> tibble::rownames_to_column(var = ".iter") |>
     tidyr::pivot_longer(cols = -".iter",
                         names_to = "parameter",
