@@ -7,7 +7,7 @@
 urc_density(model, paramaters = NULL, deviance = FALSE)
 }
 \arguments{
-\item{model}{A model object returned by \code{UndercountR::urc_mcmc()}.}
+\item{model}{A model object of class \code{"rjags} returned by \code{UndercountR::urc_mcmc()}.}
 
 \item{parameters}{Optional character vector of parameter names to include in the plot.
 If \code{NULL} (default), all parameters are plotted except deviance}

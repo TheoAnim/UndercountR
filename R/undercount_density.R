@@ -1,7 +1,7 @@
 #' @title Plot Posterior Densities
 #' @description Creates a density plot for each parameter in the BUGS MCMC output.
 #'
-#' @param model A model object returned by \code{UndercountR::urc_mcmc()}.
+#' @param model A model object of class \code{"rjags} returned by \code{UndercountR::urc_mcmc()}.
 #' @param parameters Optional character vector of parameter names to include in the plot.
 #'                   If \code{NULL} (default), all parameters are plotted except deviance
 #'
