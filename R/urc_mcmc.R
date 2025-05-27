@@ -33,9 +33,9 @@ urc_mcmc <- function(data,
                      den_c = "dunif(0, 20)",
                      den_p = "dunif(0, 1)",
                      den_pi = "dunif(0, 1)",
-                     n_iter = 8e4,
+                     n_iter = 8e3,
                      n_chains = 2,
-                     n_burnin = 8e4/2,
+                     n_burnin = 8e3/2,
                      seed = 123,
                      inits = NULL) {
   #setup to parallize
