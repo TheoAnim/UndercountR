@@ -14,7 +14,6 @@
 #'   urc_density(output$models$poisson)
 #' }
 
-
 urc_density <- function(model,
                         paramaters = NULL,
                         deviance = FALSE) {

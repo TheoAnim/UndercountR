@@ -47,7 +47,7 @@ urc_trace <- function(model, parameters = NULL, deviance = FALSE) {
 
   ggplot2::ggplot(trace_data, ggplot2::aes(x = .iter, y = value, color = .chain)) +
     ggplot2::geom_line() +
-    ggplot2::facet_wrap(~parameter, scales = "free_y") +
+    ggplot2::facet_wrap(~parameter, scales = "free") +
     ggplot2::labs(
       x = "Iteration",
       y = "Value",
