@@ -1,10 +1,10 @@
-#' @title Plot HPD Credible Intervals
+#' @title Plot HPD Intervals
 #' @description Visualizes the Highest Posterior Density (HPD) intervals for each parameter in the MCMC output.
 #'
 #' @param model A model object returned by \code{UndercountR::urc_mcmc()}.
-#' @param parameters Optional character vector of parameter names to include.
-#' @param level Credible level between 0 and 1 (default is 0.95).
-#'
+#' @param params Optional character vector of parameter names to include. Default \code{'all'} plots posteriors of all parameters except \code{deviance}
+#' @param level Credible level(default is 0.95).
+#' @param deviance Logical specifying whether to include plot of posterior deviance. Default is \code{deviance = FALSE}.
 #' @return A \code{ggplot} object showing HPD credible intervals.
 #' @export
 #'
@@ -16,6 +16,7 @@
 
 urc_HPD <- function(model,
                     parameters = NULL,
+                    deviance = FALSE,
                     level = 0.95) {
   if (is.null(model$BUGSoutput$sims.matrix)) {
     stop("The provided model object does not contain 'sims.matrix' MCMC output.")
@@ -36,7 +37,9 @@ urc_HPD <- function(model,
     upper = hpd[, "upper"],
     mean = mean_vals
   )
-
+  if(!deviance){
+    plot_data <- dplyr::filter(plot_data, parameter != "deviance")
+  }
   ggplot2::ggplot(plot_data, ggplot2::aes(x = parameter)) +
     ggplot2::geom_pointrange(ggplot2::aes(y = mean, ymin = lower, ymax = upper)) +
     ggplot2::coord_flip() +
