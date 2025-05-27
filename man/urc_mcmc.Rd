@@ -11,9 +11,9 @@ urc_mcmc(
   den_c = "dunif(0, 20)",
   den_p = "dunif(0, 1)",
   den_pi = "dunif(0, 1)",
-  n_iter = 80000,
+  n_iter = 8000,
   n_chains = 2,
-  n_burnin = 80000/2,
+  n_burnin = 8000/2,
   seed = 123,
   inits = NULL
 )
