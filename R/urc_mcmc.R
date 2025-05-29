@@ -29,10 +29,10 @@
 
 urc_mcmc <- function(data,
                      thresh = 2,
-                     den_lambda = "dgamma(0.1, 0.1)",
-                     den_c = "dunif(0, 20)",
-                     den_p = "dunif(0, 1)",
-                     den_pi = "dunif(0, 1)",
+                     prior_lambda = "dgamma(0.1, 0.1)",
+                     prior_c = "dunif(0, 1)",
+                     prior_p = "dunif(0, 1)",
+                     prior_pi = "dunif(0, 1)",
                      n_iter = 8e3,
                      n_chains = 2,
                      n_burnin = 8e3/2,
@@ -60,16 +60,16 @@ urc_mcmc <- function(data,
     if (grepl("nb", file_name)) {
       lines <- gsub(
         pattern = "prior_c",
-        replacement = den_c,
+        replacement = prior_c,
         x = lines,
         fixed = TRUE
       )
     } else if (grepl("zip", file_name)) {
-      lines <- gsub("prior_pi", den_pi, lines, fixed = TRUE)
+      lines <- gsub("prior_pi", prior_pi, lines, fixed = TRUE)
     }
     lines <- stringr::str_replace_all(lines,
-                                      c("prior_lambda" = den_lambda,
-                                        "prior_p" = den_p))
+                                      c("prior_lambda" = prior_lambda,
+                                        "prior_p" = prior_p))
 
     temp <- tempfile()
     on.exit(unlink(temp, force = TRUE))
