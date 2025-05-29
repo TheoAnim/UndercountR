@@ -7,15 +7,15 @@
 #'
 #' @param data A named list containing the data to be passed to the JAGS models.
 #' @param thresh Numeric. Threshold for deciding between models when DICs are close.
-#' @param den_lambda A prior distribution for the Poisson or ZIP rate parameter \code{lambda}.
-#' @param den_p A prior distribution for the reporting probability \code{p}.
-#' @param den_pi A prior distribution for the zero-inflation probability \code{pi} (ZIP only).
-#' @param den_c A prior distribution for the dispersion parameter \code{c} (NB only).
+#' @param prior_lambda A prior distribution for the Poisson or ZIP rate parameter \code{lambda}.
+#' @param prior_p A prior distribution for the reporting probability \code{p}.
+#' @param prior_pi A prior distribution for the zero-inflation probability \code{pi} (ZIP only).
+#' @param prior_c A prior distribution for the dispersion parameter \code{c} (NB only).
 #' @param n_iter Integer. Total number of MCMC iterations per chain.
-#' @param seed Integer. Random seed for reproducibility.
 #' @param n_chains Integer. Number of MCMC chains.
 #' @param n_burnin Integer. Number of burn-in iterations to discard.
 #' @param inits Optional. A function or list specifying initial values for the MCMC.
+#' @param seed Integer. Random seed for reproducibility.
 #'
 #' @return A named list with the following components:
 #' \describe{

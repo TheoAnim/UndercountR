@@ -23,6 +23,14 @@ urc_mcmc(
 
 \item{thresh}{Numeric. Threshold for deciding between models when DICs are close.}
 
+\item{prior_lambda}{A prior distribution for the Poisson or ZIP rate parameter \code{lambda}.}
+
+\item{prior_c}{A prior distribution for the dispersion parameter \code{c} (NB only).}
+
+\item{prior_p}{A prior distribution for the reporting probability \code{p}.}
+
+\item{prior_pi}{A prior distribution for the zero-inflation probability \code{pi} (ZIP only).}
+
 \item{n_iter}{Integer. Total number of MCMC iterations per chain.}
 
 \item{n_chains}{Integer. Number of MCMC chains.}
@@ -32,14 +40,6 @@ urc_mcmc(
 \item{seed}{Integer. Random seed for reproducibility.}
 
 \item{inits}{Optional. A function or list specifying initial values for the MCMC.}
-
-\item{den_lambda}{A prior distribution for the Poisson or ZIP rate parameter \code{lambda}.}
-
-\item{den_p}{A prior distribution for the reporting probability \code{p}.}
-
-\item{den_pi}{A prior distribution for the zero-inflation probability \code{pi} (ZIP only).}
-
-\item{den_c}{A prior distribution for the dispersion parameter \code{c} (NB only).}
 }
 \value{
 A named list with the following components:
