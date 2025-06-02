@@ -5,7 +5,7 @@
 #' for underreported count data using JAGS. The function selects the most
 #' parsimonious model based on the Deviance Information Criterion (DIC).
 #'
-#' @param data A named list containing the data to be passed to the JAGS models.
+#' @param x A named list containing the data(observed counts, true "unobserved counts" and validation set) to be passed to the JAGS models.
 #' @param thresh Numeric. Threshold for deciding between models when DICs are close.
 #' @param prior_lambda A prior distribution for the Poisson or ZIP rate parameter \code{lambda}.
 #' @param prior_p A prior distribution for the reporting probability \code{p}.
@@ -27,7 +27,7 @@
 #' @export
 
 
-urc_mcmc <- function(data,
+urc_mcmc <- function(x,
                      thresh = 2,
                      prior_lambda = "dgamma(0.1, 0.1)",
                      prior_c = "dunif(0, 1)",
@@ -41,6 +41,10 @@ urc_mcmc <- function(data,
   #setup to parallize
   future::plan(future::multisession)
 
+  if (!is.list(x) || !all(c("yobs", "ystar", "yval") %in% names(x))) {
+    stop("Argument 'x' must be a named list containing 'yobs', 'ystar', and 'yval'.")
+  }
+
   #define parameters
   parameters_poisson <-  c("mu", "lambda", "p")
   parameters_zip <- c("lambda", "p", "pi")
@@ -49,6 +53,7 @@ urc_mcmc <- function(data,
 
   #function to fit each model
   fit_model <- function(file_name, parameters) {
+    data <- x
     data$n_obs <- length(data$yobs)
     data$n_valdata <- length(data$ystar)
 

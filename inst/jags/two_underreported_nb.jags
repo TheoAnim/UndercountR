@@ -1,0 +1,26 @@
+model{
+  #observed data
+  for(i in 1:n){
+    for(j in 1:J){
+      yobs[i, j] ~ dnegbin(prob_y[j], c[j])
+    }
+  }
+  #validation set
+  for(v in 1:nv){
+    for(j in 1:J){
+      ystar[v, j] ~ dnegbin(prob_ystar[j], c[j])
+      yval[v, j] ~ dbinom(p[j], ystar[v, j])
+    }
+  }
+
+ ##############################
+ ##########priors##############
+ ##############################
+  for(j in 1:J){
+    c[j] ~ prior_c
+    p[j] ~ prior_p
+    prob_y[j] <- c[j]/(c[j] + lambda[j]*p[j])
+    lambda[j] ~ prior_lambda
+    prob_ystar[j] <- c[j]/(c[j] + lambda[j])
+  }
+}

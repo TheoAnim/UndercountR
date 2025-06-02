@@ -1,0 +1,22 @@
+model {
+  #observed data
+  for(i in 1:n){
+    for(j in 1:J){
+      yobs[i, j] ~ dpois(mu[j])
+    }
+  }
+  #validation set
+  for(v in 1:nv){
+    for(j in 1:J){
+      ystar[v, j] ~ dpois(lambda[j])
+      yval[v, j] ~ dbinom(p[j], ystar[v, j])
+    }
+  }
+
+  #hyperpriors
+  for(j in 1:J){
+    mu[j] <- p[j]*lambda[j]
+    lambda[j] ~ prior_lambda
+    p[j] ~ prior_p
+  }
+}
