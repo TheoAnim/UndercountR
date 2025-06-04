@@ -12,6 +12,10 @@
 #' }
 
 urc_trace <- function(model, parameters = NULL, deviance = FALSE) {
+  if (is.null(model$BUGSoutput$sims.array)) {
+    stop("The provided model object does not contain 'sims.array' MCMC output.")
+  }
+
   sims_array <- model$BUGSoutput$sims.array
   n_iter <- dim(sims_array)[1]
   n_chain <- dim(sims_array)[2]
