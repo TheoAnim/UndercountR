@@ -9,7 +9,7 @@ urc_mcmc(
   thresh = 2,
   prior_lambda = "dgamma(0.1, 0.1)",
   prior_c = "dunif(0, 1)",
-  prior_p = "dunif(0, 1)",
+  prior_p = "dgamma(0.1, 0.1)",
   prior_pi = "dunif(0, 1)",
   n_iter = 8000,
   n_chains = 2,
