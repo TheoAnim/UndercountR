@@ -108,8 +108,8 @@ urc_mcmc2 <- function(x,
     )
   )
   list(
-    models = models,
+    best_model = model_choice(DICs, thresh = thresh),
     DICs = DICs,
-    best_model = model_choice(DICs, thresh = thresh)
+    models = models
   )
 }
