@@ -19,4 +19,5 @@ model {
     lambda[j] ~ prior_lambda
     p[j] ~ prior_p
   }
+
 }

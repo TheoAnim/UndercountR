@@ -17,6 +17,12 @@ model{
         pi ~ prior_pi
         lambda ~  prior_lambda
         p ~ prior_p
+
+
+  #likelihood to compute waic
+  for(i in 1:n_obs){
+          loglik[i] <- logdensity.pois(yobs[i], mu[i])
+    }
 }
 
 

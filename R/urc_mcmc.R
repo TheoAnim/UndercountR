@@ -46,9 +46,9 @@ urc_mcmc <- function(x,
   }
 
   #define parameters
-  parameters_poisson <-  c("mu", "lambda", "p")
-  parameters_zip <- c("lambda", "p", "pi")
-  parameters_nb <- c("lambda", "c", "p")
+  parameters_poisson <-  c("mu", "lambda", "p", "loglik")
+  parameters_zip <- c("lambda", "p", "pi", "loglik")
+  parameters_nb <- c("lambda", "c", "p", "loglik")
 
 
   #function to fit each model

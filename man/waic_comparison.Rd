@@ -11,9 +11,7 @@ waic_comparison(jagsoutput, thresh = 2)
 element which is a list of r2jags output objects, typically containing
 Poisson, ZIP (zero-inflated Poisson), and negative binomial models.}
 
-\item{thresh}{Numeric threshold for model comparison (default = 2).
-
-#' @export}
+\item{thresh}{Numeric threshold for model comparison (default = 2).}
 }
 \description{
 Calculates the Widely Applicable Information Criterion (WAIC) for multiple
