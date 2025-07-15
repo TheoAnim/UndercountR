@@ -7,7 +7,9 @@
 #'   element which is a list of r2jags output objects, typically containing
 #'   Poisson, ZIP (zero-inflated Poisson), and negative binomial models.
 #' @param thresh Numeric threshold for model comparison (default = 2).
-waic_best <- function(jagsoutput, thresh = 2){
+#'
+#' #' @export
+waic_comparison <- function(jagsoutput, thresh = 2){
   models <- jagsoutput$models
   model_names <- c("poisson", "zip", "negbinom")
   waic_values <- purrr::map(models~.x$BUGSoutput$sims.list$ll) |>
