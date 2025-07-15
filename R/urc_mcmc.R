@@ -114,9 +114,11 @@ urc_mcmc <- function(x,
       models$negbinom$BUGSoutput$DIC
     )
   )
+  waics <- waic_comparison(models)
   list(
     models = models,
     DICs = DICs,
-    best_model = model_choice(DICs, thresh = thresh)
+    best_model = model_choice(DICs, thresh = thresh),
+    waic_best = waic_choice(waics, thresh = thresh)
   )
 }

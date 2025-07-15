@@ -4,10 +4,10 @@
 \alias{waic_comparison}
 \title{Compare Models Using WAIC}
 \usage{
-waic_comparison(jagsoutput, thresh = 2)
+waic_comparison(models, thresh = 2)
 }
 \arguments{
-\item{jagsoutput}{A list containing JAGS model outputs. Must have a \code{models}
+\item{models}{A list containing JAGS \code{models} for Poisson, ZIP and Negative Binomial
 element which is a list of r2jags output objects, typically containing
 Poisson, ZIP (zero-inflated Poisson), and negative binomial models.}
 
