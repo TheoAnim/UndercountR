@@ -12,9 +12,9 @@
 waic_comparison <- function(jagsoutput, thresh = 2){
   models <- jagsoutput$models
   model_names <- c("poisson", "zip", "negbinom")
-  waic_values <- purrr::map(models~.x$BUGSoutput$sims.list$ll) |>
+  waic_values <- purrr::map(models, \(x) x$BUGSoutput$sims.list$ll) |>
     purrr::map(waic) |>
-    purrr::map_dbl(~.x$estimates["waic", 'Estimate'])
+    purrr::map_dbl(\(x) x$estimates["waic", 'Estimate'])
   tibble(
     model = model_names,
     waic = waic_values
