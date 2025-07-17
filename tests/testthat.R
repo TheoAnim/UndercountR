@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(Rbayesucsel)
+library(UndercountR)
 
-test_check("Rbayesucsel")
+test_check("UndercountR")
