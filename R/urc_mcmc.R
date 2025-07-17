@@ -115,10 +115,12 @@ urc_mcmc <- function(x,
     )
   )
   waics <- waic_comparison(models)
+  loos <- loo_comparison(models)
   list(
     models = models,
     DICs = DICs,
     best_model = model_choice(DICs, thresh = thresh),
-    waic_best = waic_choice(waics, thresh = thresh)
+    waic_best = waic_choice(waics, thresh = thresh),
+    loo_best = loo_choice(loos, thresh = thresh)
   )
 }
