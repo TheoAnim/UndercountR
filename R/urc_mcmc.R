@@ -114,7 +114,7 @@ urc_mcmc <- function(x,
       models$negbinom$BUGSoutput$DIC
     )
   )
-  waics <- waic_comparison(models)
+  waics <- waic_comparison(models) #creates a tibble each waics for each model
   loos <- loo_comparison(models)
   list(
     models = models,
