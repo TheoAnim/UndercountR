@@ -6,6 +6,7 @@ model{
         for(j in 1:n_valdata){
           ystar[j] ~ dnegbin(prob_ystar, c)
           yval[j] ~ dbin(p, ystar[j])
+          loglik[i] <- logdensity.pois(yobs[i], mu[i])
         }
 
     #hyperpriors
@@ -14,10 +15,4 @@ model{
     lambda ~  prior_lambda
     p ~ prior_p
     prob_ystar <- c/(c + lambda)
-
-
-    #likelihood to compute waic
-    for(i in 1:n_obs){
-      loglik[i] <- logdensity.negbin(yobs[i], prob, c)
-    }
 }

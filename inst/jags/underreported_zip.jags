@@ -4,6 +4,7 @@ model{
             yobs[i] ~ dpois(mu[i])
             mu[i] = lambda*p*is_zero[i] + 0.0001
             is_zero[i] ~ dbern(1 - pi)
+            loglik[i] <- logdensity.pois(yobs[i], mu[i])
           }
         #validation data
         for(j in 1:n_valdata){
@@ -17,12 +18,6 @@ model{
         pi ~ prior_pi
         lambda ~  prior_lambda
         p ~ prior_p
-
-
-  #likelihood to compute waic
-  for(i in 1:n_obs){
-          loglik[i] <- logdensity.pois(yobs[i], mu[i])
-    }
 }
 
 

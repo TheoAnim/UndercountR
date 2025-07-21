@@ -2,6 +2,7 @@ model {
         #data model
         for(i in 1:n_obs){
             yobs[i] ~ dpois(mu)
+            loglik[i] <- logdensity.pois(yobs[i], mu)
           }
         #validation data
         for(j in 1:n_valdata){
@@ -13,10 +14,5 @@ model {
         lambda ~ prior_lambda
         p ~ prior_p
         mu <- lambda * p
-
-        #likelihood to compute waic
-        for(i in 1:n_obs){
-          loglik[i] <- logdensity.pois(yobs[i], mu)
-        }
     }
 
