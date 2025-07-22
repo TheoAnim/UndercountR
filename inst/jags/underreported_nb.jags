@@ -1,12 +1,12 @@
 model{
  for(i in 1:n_obs){
             yobs[i] ~ dnegbin(prob, c)
+            loglik[i] <- logdensity.pois(yobs[i], mu[i])
           }
         #validation data
         for(j in 1:n_valdata){
           ystar[j] ~ dnegbin(prob_ystar, c)
           yval[j] ~ dbin(p, ystar[j])
-          loglik[i] <- logdensity.pois(yobs[i], mu[i])
         }
 
     #hyperpriors
