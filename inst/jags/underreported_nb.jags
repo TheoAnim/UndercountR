@@ -7,6 +7,7 @@ model{
         for(j in 1:n_valdata){
           ystar[j] ~ dnegbin(prob_ystar, c)
           yval[j] ~ dbin(p, ystar[j])
+          loglik[n_obs + j] <- logdensity.negbin(ystar[j], prob_ystar, c) + logdensity.bin(yval[j], p, ystar[j])
         }
 
     #hyperpriors

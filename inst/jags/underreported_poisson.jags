@@ -8,7 +8,7 @@ model {
         for(j in 1:n_valdata){
           ystar[j] ~ dpois(lambda)
           yval[j] ~ dbinom(p, ystar[j])
-          loglik[n_obs + j] <- logdensity.pois(ystar[j], lambda) #+ logdensity.bin(yval[j], p, ystar[j])
+          loglik[n_obs + j] <- logdensity.pois(ystar[j], lambda) + logdensity.bin(yval[j], p, ystar[j])
         }
 
         #prior
