@@ -103,7 +103,7 @@ urc_mcmc <- function(x,
   model_params <- list(parameters_poisson, parameters_zip, parameters_nb)
 
   # Parallelized model fitting
-  model_outputs <- purrr::map2(model_files, model_params, fit_model)
+  model_outputs <- furrr::future_map2(model_files, model_params, fit_model)
   model_names <- c("poisson", "zip", "negbinom")
   models <- rlang::set_names(model_outputs, model_names)
   DICs <- tibble(

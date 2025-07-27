@@ -12,9 +12,9 @@
 loo_comparison <- function(models, thresh = 2){
   #models <- jagsoutput$models
   model_names <- c("poisson", "zip", "negbinom")
-  loo_values <- purrr::map(models, \(x) x$BUGSoutput$sims.list$loglik) |>
-    purrr::map(loo::loo) |>
-    purrr::map_dbl(\(x) x$estimates["looic", 'Estimate'])
+  loo_values <- furrr::future_map(models, \(x) x$BUGSoutput$sims.list$loglik) |>
+    furrr::future_map(loo::loo) |>
+    furrr::future_map_dbl(\(x) x$estimates["looic", 'Estimate'])
   tibble(
     model_names = model_names,
     loo = loo_values
