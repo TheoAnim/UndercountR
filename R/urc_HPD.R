@@ -40,6 +40,7 @@ urc_HPD <- function(model,
   if(!deviance){
     plot_data <- dplyr::filter(plot_data, parameter != "deviance")
   }
+  trace_data <- dplyr::filter(trace_data, !grepl("^loglik\\[", parameter))
   ggplot2::ggplot(plot_data, ggplot2::aes(x = parameter)) +
     ggplot2::geom_pointrange(ggplot2::aes(y = mean, ymin = lower, ymax = upper)) +
     ggplot2::coord_flip() +

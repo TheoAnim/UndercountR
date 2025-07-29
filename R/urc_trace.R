@@ -44,6 +44,7 @@ urc_trace <- function(model, parameters = NULL, deviance = FALSE) {
   if (!deviance) {
     trace_data <- dplyr::filter(trace_data, parameter != "deviance")
   }
+  trace_data <- dplyr::filter(trace_data, !grepl("^loglik\\[", parameter))
 
   ggplot2::ggplot(trace_data, ggplot2::aes(x = .iter, y = value, color = .chain)) +
     ggplot2::geom_line() +
