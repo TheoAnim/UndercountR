@@ -30,6 +30,7 @@ urc_hist <- function(model,
   if (!is.null(paramaters)) {
     samples <- dplyr::filter(samples, paramater %in% parameters)
   }
+  samples <- dplyr::filter(samples, !grepl("^loglik\\[", parameter))
   ggplot2::ggplot(samples, aes(x = value)) +
     ggplot2::geom_histogram(aes(y = after_stat(density))) +
     ggplot2::facet_wrap( ~ parameter, scales = "free")
