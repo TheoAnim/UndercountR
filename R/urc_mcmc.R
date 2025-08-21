@@ -39,7 +39,7 @@ urc_mcmc <- function(x,
                      seed = 123,
                      inits = NULL) {
   #setup to parallize
-  future::plan(future::multisession)
+  future::plan(future::multisession, workers = 3)
 
   if (!is.list(x) || !all(c("yobs", "ystar", "yval") %in% names(x))) {
     stop("Argument 'x' must be a named list containing 'yobs', 'ystar', and 'yval'.")
