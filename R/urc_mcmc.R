@@ -65,6 +65,7 @@ urc_mcmc <- function(x,
                              package = "UndercountR",
                              mustWork = TRUE)
     lines <- readLines(file_path)
+    
     #input user-specified priors
     if (grepl("nb", file_name)) {
       lines <- gsub(
@@ -76,10 +77,12 @@ urc_mcmc <- function(x,
     } else if (grepl("zip", file_name)) {
       lines <- gsub("prior_pi", prior_pi, lines, fixed = TRUE)
     }
-    lines <- stringr::str_replace_all(lines,
-                                      c("prior_lambda" = prior_lambda,
-                                        "prior_p" = prior_p))
-
+    # lines <- stringr::str_replace_all(lines,
+    #                                   c("prior_lambda" = prior_lambda,
+    #                                     "prior_p" = prior_p))
+    lines <- gsub("prior_lambda", prior_lambda, lines, fixed = TRUE)
+    lines <- gsub("prior_p", prior_p, lines, fixed = TRUE)
+    
     temp <- tempfile()
     on.exit(unlink(temp, force = TRUE))
     writeLines(lines, temp)
