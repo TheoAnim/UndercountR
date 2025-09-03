@@ -65,7 +65,7 @@ urc_mcmc <- function(x,
                              package = "UndercountR",
                              mustWork = TRUE)
     lines <- readLines(file_path)
-    
+
     #input user-specified priors
     if (grepl("nb", file_name)) {
       lines <- gsub(
@@ -131,7 +131,7 @@ urc_mcmc <- function(x,
   list(
     models = models,
     dics = dics,
-    dic_best = model_choice(dics, thresh = thresh),
+    dic_best = dic_choice(dics, thresh = thresh),
     waic_best = waic_choice(waics, thresh = thresh),
     loo_best = loo_choice(loos, thresh = thresh)
   )
