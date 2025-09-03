@@ -1,4 +1,4 @@
-model_choice <- function(df, thresh) {
+dic_choice <- function(df, thresh) {
   # Ensure the tibble has the expected structure
   if (!all(c("model_names", "DIC") %in% colnames(df))) {
     stop("The tibble must have columns 'model_names' and 'DIC'")
