@@ -45,7 +45,6 @@ urc_mcmc <- function(x,
     future::plan(future::multicore, workers = 3)
   }
 
-
   if (!is.list(x) || !all(c("yobs", "ystar", "yval") %in% names(x))) {
     stop("Argument 'x' must be a named list containing 'yobs', 'ystar', and 'yval'.")
   }
@@ -66,7 +65,7 @@ urc_mcmc <- function(x,
                              package = "UndercountR",
                              mustWork = TRUE)
     lines <- readLines(file_path)
-    #user-specified priors
+    #input user-specified priors
     if (grepl("nb", file_name)) {
       lines <- gsub(
         pattern = "prior_c",
@@ -110,8 +109,11 @@ urc_mcmc <- function(x,
   # Parallelized model fitting
   model_outputs <- furrr::future_map2(model_files, model_params, fit_model)
   model_names <- c("poisson", "zip", "negbinom")
+
   models <- rlang::set_names(model_outputs, model_names)
-  DICs <- tibble(
+
+  #---------------------metrics----------------------------------------
+  dics <- tibble(
     model_names,
     DIC = c(
       models$poisson$BUGSoutput$DIC,
@@ -119,12 +121,14 @@ urc_mcmc <- function(x,
       models$negbinom$BUGSoutput$DIC
     )
   )
-  waics <- waic_comparison(models) #creates a tibble each waics for each model
+  waics <- waic_comparison(models) #creates a tibble with waic for each model
   loos <- loo_comparison(models)
+
+  #named list of jags model and metrics
   list(
     models = models,
-    DICs = DICs,
-    best_model = model_choice(DICs, thresh = thresh),
+    dics = dics,
+    dic_best = model_choice(dics, thresh = thresh),
     waic_best = waic_choice(waics, thresh = thresh),
     loo_best = loo_choice(loos, thresh = thresh)
   )
