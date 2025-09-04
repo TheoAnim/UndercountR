@@ -82,7 +82,7 @@ urc_mcmc <- function(x,
     #                                     "prior_p" = prior_p))
     lines <- gsub("prior_lambda", prior_lambda, lines, fixed = TRUE)
     lines <- gsub("prior_p", prior_p, lines, fixed = TRUE)
-    
+
     temp <- tempfile()
     on.exit(unlink(temp, force = TRUE))
     writeLines(lines, temp)
@@ -110,7 +110,8 @@ urc_mcmc <- function(x,
   model_params <- list(parameters_poisson, parameters_zip, parameters_nb)
 
   # Parallelized model fitting
-  model_outputs <- furrr::future_map2(model_files, model_params, fit_model)
+  model_outputs <- furrr::future_map2(model_files, model_params, fit_model,
+                                      .Options = furrr_options(seed = seed))
   model_names <- c("poisson", "zip", "negbinom")
 
   models <- rlang::set_names(model_outputs, model_names)
