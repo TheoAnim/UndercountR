@@ -1,0 +1,40 @@
+model {
+
+  # --- Observed data: Sample 1 ---
+  for(i in 1:n1){
+    yobs1[i] ~ dpois(muy1[i])
+    muy1[i] <- lambda1 * p1 * is_zeroy1[i] + 0.0001
+    is_zeroy1[i] ~ dbern(1 - pi1)
+  }
+
+  # --- Observed data: Sample 2 ---
+  for(i in 1:n2){
+    yobs2[i] ~ dpois(muy2[i])
+    muy2[i] <- lambda2 * p2 * is_zeroy2[i] + 0.0001
+    is_zeroy2[i] ~ dbern(1 - pi2)
+  }
+
+  # --- Validation set: Sample 1 ---
+  for(v in 1:nv1){
+    ystar1[v] ~ dpois(mu_ystar1[v])
+    yval1[v]  ~ dbinom(p1, ystar1[v])
+    mu_ystar1[v] <- lambda1 * is_zero1[v] + 0.001
+    is_zero1[v] ~ dbern(1 - pi1)
+  }
+
+  # --- Validation set: Sample 2 ---
+  for(v in 1:nv2){
+    ystar2[v] ~ dpois(mu_ystar2[v])
+    yval2[v]  ~ dbinom(p2, ystar2[v])
+    mu_ystar2[v] <- lambda2 * is_zero2[v] + 0.001
+    is_zero2[v] ~ dbern(1 - pi2)
+  }
+
+  # --- Hyperpriors ---
+  lambda1 ~ prior_lambda1
+  lambda2 ~ prior_lambda2
+  p1      ~ prior_p1
+  p2      ~ prior_p2
+  pi1     ~ prior_pi1
+  pi2     ~ prior_pi2
+}

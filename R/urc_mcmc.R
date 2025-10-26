@@ -35,17 +35,18 @@ urc_mcmc <- function(x,
                      prior_pi = "dunif(0, 1)",
                      n_iter = 8e3,
                      n_chains = 2,
-                     n_burnin = 8e3/2,
+                     n_burnin = 8e3 / 2,
                      seed = 123,
                      inits = NULL) {
   #setup to parallize
-  if(.Platform$OS.type == "windows"){
-    future::plan(multisession, workers = 3)
+  if (.Platform$OS.type == "windows") {
+    future::plan(future::multisession, workers = 3)
   } else{
     future::plan(future::multicore, workers = 3)
   }
 
-  if (!is.list(x) || !all(c("yobs", "ystar", "yval") %in% names(x))) {
+  if (!is.list(x) ||
+      !all(c("yobs", "ystar", "yval") %in% names(x))) {
     stop("Argument 'x' must be a named list containing 'yobs', 'ystar', and 'yval'.")
   }
 
@@ -110,8 +111,10 @@ urc_mcmc <- function(x,
   model_params <- list(parameters_poisson, parameters_zip, parameters_nb)
 
   # Parallelized model fitting
-  model_outputs <- furrr::future_map2(model_files, model_params, fit_model,
-                                      .Options = furrr_options(seed = seed))
+  model_outputs <- furrr::future_map2(model_files,
+                                      model_params,
+                                      fit_model,
+                                      .options = furrr::furrr_options(seed = seed))
   model_names <- c("poisson", "zip", "negbinom")
 
   models <- rlang::set_names(model_outputs, model_names)

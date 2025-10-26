@@ -1,0 +1,41 @@
+model {
+
+  # --- Observed data: Sample 1 ---
+  for(i in 1:n1){
+    yobs1[i] ~ dnegbin(prob_y1, c1)
+  }
+
+  # --- Observed data: Sample 2 ---
+  for(i in 1:n2){
+    yobs2[i] ~ dnegbin(prob_y2, c2)
+  }
+
+  # --- Validation set: Sample 1 ---
+  for(v in 1:nv1){
+    ystar1[v] ~ dnegbin(prob_ystar1, c1)
+    yval1[v]  ~ dbinom(p1, ystar1[v])
+  }
+
+  # --- Validation set: Sample 2 ---
+  for(v in 1:nv2){
+    ystar2[v] ~ dnegbin(prob_ystar2, c2)
+    yval2[v]  ~ dbinom(p2, ystar2[v])
+  }
+
+  ##############################
+  ########## Priors ############
+  ##############################
+  lambda1 ~ prior_lambda1
+  lambda2 ~ prior_lambda2
+  p1      ~ prior_p1
+  p2      ~ prior_p2
+  c1      ~ prior_c1
+  c2      ~ prior_c2
+
+  # --- Derived probabilities for NB ---
+  prob_y1      <- c1 / (c1 + lambda1 * p1)
+  prob_ystar1  <- c1 / (c1 + lambda1)
+  prob_y2      <- c2 / (c2 + lambda2 * p2)
+  prob_ystar2  <- c2 / (c2 + lambda2)
+
+}

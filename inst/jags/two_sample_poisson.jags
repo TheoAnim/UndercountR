@@ -1,0 +1,29 @@
+model {
+
+  # Observed counts
+  for(i in 1:n1){
+    yobs1[i] ~ dpois(mu1)
+  }
+  for(i in 1:n2){
+    yobs2[i] ~ dpois(mu2)
+  }
+
+  # Validation sets
+  for(v in 1:nv1){
+    ystar1[v] ~ dpois(lambda1)
+    yval1[v] ~ dbinom(p1, ystar1[v])
+  }
+  for(v in 1:nv2){
+    ystar2[v] ~ dpois(lambda2)
+    yval2[v] ~ dbinom(p2, ystar2[v])
+  }
+
+  # Hyperpriors / derived means
+  lambda1 ~ prior_lambda1
+  lambda2 ~ prior_lambda2
+  p1 ~ prior_p1
+  p2 ~ prior_p2
+
+  mu1 <- lambda1 * p1
+  mu2 <- lambda2 * p2
+}
