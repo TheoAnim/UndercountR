@@ -9,17 +9,18 @@ urc_two_mcmc(
   thresh = 2,
   prior_lambda1 = "dgamma(0.1,0.1)",
   prior_lambda2 = "dgamma(0.1,0.1)",
-  prior_p1 = "dunif(0,1)",
-  prior_p2 = "dunif(0,1)",
-  prior_pi1 = "dunif(0,1)",
-  prior_pi2 = "dunif(0,1)",
+  prior_p1 = "dbeta(1,1)",
+  prior_p2 = "dbeta(0,1)",
+  prior_pi1 = "dbeta(0,1)",
+  prior_pi2 = "dbeta(0,1)",
   prior_c1 = "dgamma(0.1,0.1)",
   prior_c2 = "dgamma(0.1,0.1)",
   n_iter = 8000,
   n_chains = 2,
   n_burnin = 4000,
   inits = NULL,
-  seed = 123
+  seed = 123,
+  parallel = FALSE
 )
 }
 \arguments{
@@ -55,6 +56,13 @@ urc_two_mcmc(
 \item{inits}{Optional initial values (function or list).}
 
 \item{seed}{Random seed for reproducibility.}
+
+\item{parallel}{Logical.
+If \code{TRUE}, model fitting is performed in parallel using the
+\pkg{future} and \pkg{furrr} frameworks.
+This enables simultaneous fitting of the Poisson, zero-inflated Poisson,
+and negative binomial models across multiple workers.
+If \code{FALSE}, the models are fitted sequentially.}
 }
 \value{
 A named list containing:

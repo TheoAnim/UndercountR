@@ -9,13 +9,14 @@ urc_mcmc(
   thresh = 2,
   prior_lambda = "dgamma(0.1, 0.1)",
   prior_c = "dgamma(0.1, 0.1)",
-  prior_p = "beta(1, 1)",
-  prior_pi = "beta(1, 1)",
+  prior_p = "dbeta(1, 1)",
+  prior_pi = "dbeta(1, 1)",
   n_iter = 8000,
   n_chains = 2,
   n_burnin = 8000/2,
   seed = 123,
-  inits = NULL
+  inits = NULL,
+  parallel = FALSE
 )
 }
 \arguments{
@@ -40,6 +41,13 @@ urc_mcmc(
 \item{seed}{Integer. Random seed for reproducibility.}
 
 \item{inits}{Optional. A function or list specifying initial values for the MCMC.}
+
+\item{parallel}{Logical.
+If \code{TRUE}, model fitting is performed in parallel using the
+\pkg{future} and \pkg{furrr} frameworks.
+This enables simultaneous fitting of the Poisson, zero-inflated Poisson,
+and negative binomial models across multiple workers.
+If \code{FALSE}, the models are fitted sequentially.}
 }
 \value{
 A named list with the following components:

@@ -22,7 +22,12 @@
 #' @param n_burnin Number of burn-in iterations.
 #' @param inits Optional initial values (function or list).
 #' @param seed Random seed for reproducibility.
-#'
+#' @param parallel Logical.
+#'   If `TRUE`, model fitting is performed in parallel using the
+#'   \pkg{future} and \pkg{furrr} frameworks.
+#'   This enables simultaneous fitting of the Poisson, zero-inflated Poisson,
+#'   and negative binomial models across multiple workers.
+#'   If `FALSE`, the models are fitted sequentially.
 #' @return A named list containing:
 #' \describe{
 #'   \item{models}{A list of fitted \code{rjags} model objects.}
@@ -35,17 +40,18 @@ urc_two_mcmc <- function(x,
                          thresh = 2,
                          prior_lambda1 = "dgamma(0.1,0.1)",
                          prior_lambda2 = "dgamma(0.1,0.1)",
-                         prior_p1      = "dunif(0,1)",
-                         prior_p2      = "dunif(0,1)",
-                         prior_pi1     = "dunif(0,1)",
-                         prior_pi2     = "dunif(0,1)",
+                         prior_p1      = "dbeta(1,1)",
+                         prior_p2      = "dbeta(0,1)",
+                         prior_pi1     = "dbeta(0,1)",
+                         prior_pi2     = "dbeta(0,1)",
                          prior_c1      = "dgamma(0.1,0.1)",
                          prior_c2      = "dgamma(0.1,0.1)",
                          n_iter = 8e3,
                          n_chains = 2,
                          n_burnin = 4e3,
                          inits = NULL,
-                         seed = 123) {
+                         seed = 123,
+                         parallel = FALSE) {
   # --- sample sizes ---
   x$n1  <- length(x$yobs1)
   x$n2  <- length(x$yobs2)
@@ -109,11 +115,15 @@ urc_two_mcmc <- function(x,
                    "two_sample_nb.jags")
   model_params <- list(parameters_poisson, parameters_zip, parameters_nb)
 
-  # --- fit models in parallel ---
-  model_outputs <- furrr::future_map2(model_files,
-                                      model_params,
-                                      fit_model,
-                                      .options = furrr::furrr_options(seed = seed))
+  # --- fit models in parallel --
+  if (parallel) {
+    model_outputs <- furrr::future_map2(model_files,
+                                        model_params,
+                                        fit_model,
+                                        .options = furrr::furrr_options(seed = seed))
+  } else{
+    model_outputs <- purrr::map2(model_files, model_params, fit_model)
+  }
   model_names <- c("poisson", "zip", "negbinom")
   models <- rlang::set_names(model_outputs, model_names)
 

@@ -16,7 +16,12 @@
 #' @param n_burnin Integer. Number of burn-in iterations to discard.
 #' @param inits Optional. A function or list specifying initial values for the MCMC.
 #' @param seed Integer. Random seed for reproducibility.
-#'
+#' @param parallel Logical.
+#'   If `TRUE`, model fitting is performed in parallel using the
+#'   \pkg{future} and \pkg{furrr} frameworks.
+#'   This enables simultaneous fitting of the Poisson, zero-inflated Poisson,
+#'   and negative binomial models across multiple workers.
+#'   If `FALSE`, the models are fitted sequentially.
 #' @return A named list with the following components:
 #' \describe{
 #'   \item{models}{A list of fitted model objects (class \code{rjags}).}
@@ -31,13 +36,15 @@ urc_mcmc <- function(x,
                      thresh = 2,
                      prior_lambda = "dgamma(0.1, 0.1)",
                      prior_c = "dgamma(0.1, 0.1)",
-                     prior_p = "beta(1, 1)",
-                     prior_pi = "beta(1, 1)",
+                     prior_p = "dbeta(1, 1)",
+                     prior_pi = "dbeta(1, 1)",
                      n_iter = 8e3,
                      n_chains = 2,
                      n_burnin = 8e3 / 2,
                      seed = 123,
-                     inits = NULL) {
+                     inits = NULL,
+                     parallel = FALSE) {
+
   #setup to parallize
   if (.Platform$OS.type == "windows") {
     future::plan(future::multisession, workers = 3)
@@ -111,10 +118,15 @@ urc_mcmc <- function(x,
   model_params <- list(parameters_poisson, parameters_zip, parameters_nb)
 
   # Parallelized model fitting
-  model_outputs <- furrr::future_map2(model_files,
-                                      model_params,
-                                      fit_model,
-                                      .options = furrr::furrr_options(seed = seed))
+  if (parallel) {
+    model_outputs <- furrr::future_map2(model_files,
+                                        model_params,
+                                        fit_model,
+                                        .options = furrr::furrr_options(seed = seed))
+  } else{
+    model_outputs <- purrr::map2(model_files, model_params, fit_model)
+  }
+
   model_names <- c("poisson", "zip", "negbinom")
 
   models <- rlang::set_names(model_outputs, model_names)
