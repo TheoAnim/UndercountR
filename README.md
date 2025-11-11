@@ -1,18 +1,18 @@
 
-# UndercountR
+# BUCM
 
 <!-- badges: start -->
 <!-- badges: end -->
 
-The goal of UndercountR is to ...
+The goal of BUCM is to ...
 
 ## Installation
 
-You can install the development version of UndercountR from [GitHub](https://github.com/) with:
+You can install the development version of BUCM from [GitHub](https://github.com/) with:
 
 ``` r
 # install.packages("pak")
-pak::pak("TheoAnim/UndercountR")
+pak::pak("TheoAnim/BUCM")
 ```
 
 ## Example
@@ -20,7 +20,7 @@ pak::pak("TheoAnim/UndercountR")
 This is a basic example which shows you how to solve a common problem:
 
 ``` r
-library(UndercountR)
+library(BUCM)
 ## basic example code
 ```
 
