@@ -18,12 +18,16 @@ model {
     yval2[v] ~ dbinom(p2, ystar2[v])
   }
 
-  # Hyperpriors / derived means
+  # Hyperpriors
   lambda1 ~ prior_lambda1
   lambda2 ~ prior_lambda2
+
   p1 ~ prior_p1
   p2 ~ prior_p2
 
+  #Derived quantity: difference in expected counts
   mu1 <- lambda1 * p1
   mu2 <- lambda2 * p2
+  d <- lambda1 - lambda2
+
 }

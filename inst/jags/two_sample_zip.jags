@@ -37,4 +37,7 @@ model {
   p2      ~ prior_p2
   pi1     ~ prior_pi1
   pi2     ~ prior_pi2
+
+  #expected count difference
+  d <- lambda1 - lambda2
 }

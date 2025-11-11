@@ -41,9 +41,9 @@ urc_two_mcmc <- function(x,
                          prior_lambda1 = "dgamma(0.1,0.1)",
                          prior_lambda2 = "dgamma(0.1,0.1)",
                          prior_p1      = "dbeta(1,1)",
-                         prior_p2      = "dbeta(0,1)",
-                         prior_pi1     = "dbeta(0,1)",
-                         prior_pi2     = "dbeta(0,1)",
+                         prior_p2      = "dbeta(1,1)",
+                         prior_pi1     = "dbeta(1,1)",
+                         prior_pi2     = "dbeta(1,1)",
                          prior_c1      = "dgamma(0.1,0.1)",
                          prior_c2      = "dgamma(0.1,0.1)",
                          n_iter = 8e3,
@@ -59,9 +59,9 @@ urc_two_mcmc <- function(x,
   x$nv2 <- length(x$ystar2)
 
   # --- parameters for each model ---
-  parameters_poisson <- c("mu1", "mu2", "lambda1", "lambda2", "p1", "p2")
-  parameters_zip     <- c("lambda1", "lambda2", "p1", "p2", "pi1", "pi2")
-  parameters_nb      <- c("lambda1", "lambda2", "p1", "p2", "c1", "c2")
+  parameters_poisson <- c("d", "mu1", "mu2", "lambda1", "lambda2", "p1", "p2")
+  parameters_zip     <- c("lambda1", "lambda2", "p1", "p2", "pi1", "pi2", "d")
+  parameters_nb      <- c("lambda1", "lambda2", "p1", "p2", "c1", "c2", "d")
 
   # --- function to fit a single model ---
   fit_model <- function(file_name, parameters) {
