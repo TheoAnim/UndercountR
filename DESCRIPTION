@@ -1,10 +1,10 @@
-Package: UndercountR
-Title: Bayesian Modeling for Underreported Count Data
+Package: BUCM
+Title: Bayesian Modeling of Underreported Count Data
 Version: 0.0.0.9000
 Authors@R: 
     person("Theophilus", "Anim Bediako", , "theophilus.animbediako@gmail.com", role = c("aut", "cre"))
 Description: Tools for modeling underreported count data using Bayesian inference. 
-    Supports Poisson, Negative Binomial, and Zero-Inflated models with optional validation data.
+    Supports Poisson, Negative Binomial, and Zero-Inflated models with option to incorporate validation data.
 License: MIT
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
