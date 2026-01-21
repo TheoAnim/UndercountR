@@ -38,7 +38,8 @@ model {
   prob_y2      <- c2 / (c2 + lambda2 * p2)
   prob_ystar2  <- c2 / (c2 + lambda2)
 
-  #difference between expected counts
-  d <- lambda1 - lambda2
+ # difference in expected counts
+  delta <- lambda1 - lambda2
+  is_greater <- step(delta)
 
 }

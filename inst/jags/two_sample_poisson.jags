@@ -1,5 +1,4 @@
 model {
-
   # Observed counts
   for(i in 1:n1){
     yobs1[i] ~ dpois(mu1)
@@ -25,9 +24,11 @@ model {
   p1 ~ prior_p1
   p2 ~ prior_p2
 
-  #Derived quantity: difference in expected counts
+  #Derived quantity:
   mu1 <- lambda1 * p1
   mu2 <- lambda2 * p2
-  d <- lambda1 - lambda2
+  # difference in expected counts
+  delta <- lambda1 - lambda2
+  is_greater <- step(delta)
 
 }

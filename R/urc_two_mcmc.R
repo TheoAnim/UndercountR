@@ -59,9 +59,9 @@ urc_two_mcmc <- function(x,
   x$nv2 <- length(x$ystar2)
 
   # --- parameters for each model ---
-  parameters_poisson <- c("d", "mu1", "mu2", "lambda1", "lambda2", "p1", "p2")
-  parameters_zip     <- c("lambda1", "lambda2", "p1", "p2", "pi1", "pi2", "d")
-  parameters_nb      <- c("lambda1", "lambda2", "p1", "p2", "c1", "c2", "d")
+  parameters_poisson <- c("lambda1", "lambda2", "p1", "p2", "mu1", "mu2")
+  parameters_zip     <- c("lambda1", "lambda2", "p1", "p2", "pi1", "pi2")
+  parameters_nb      <- c("lambda1", "lambda2", "p1", "p2", "c1", "c2")
 
   # --- function to fit a single model ---
   fit_model <- function(file_name, parameters) {
@@ -105,7 +105,8 @@ urc_two_mcmc <- function(x,
       DIC = TRUE,
       quiet = TRUE,
       RNGname = "Wichmann-Hill",
-      jags.seed = seed
+      jags.seed = seed#,
+      #working.directory = getwd()
     )
   }
 
@@ -127,19 +128,36 @@ urc_two_mcmc <- function(x,
   model_names <- c("poisson", "zip", "negbinom")
   models <- rlang::set_names(model_outputs, model_names)
 
-  # --- DIC table ---
-  dics <- tibble::tibble(
-    model_names = model_names,
-    DIC = c(
-      models$poisson$BUGSoutput$DIC,
-      models$zip$BUGSoutput$DIC,
-      models$negbinom$BUGSoutput$DIC
-    )
-  )
+  #Manually compute delta for each model
+  for (m in names(models)) {
+    # A. Update sims.list
+    sims <- models[[m]]$BUGSoutput$sims.list
+    delta_vec <- sims$lambda1 - sims$lambda2
+
+    models[[m]]$BUGSoutput$sims.list$delta <- delta_vec
+
+    existing_mat <- models[[m]]$BUGSoutput$sims.matrix
+    new_mat <- cbind(existing_mat, delta_vec)
+    colnames(new_mat) <- c(colnames(existing_mat), "delta")
+
+    # # Combine and save back to the model object
+    models[[m]]$BUGSoutput$sims.matrix <- new_mat
+
+  }
+
+  # # --- DIC table ---
+  # dics <- tibble::tibble(
+  #   model_names = model_names,
+  #   DIC = c(
+  #     models$poisson$BUGSoutput$DIC,
+  #     models$zip$BUGSoutput$DIC,
+  #     models$negbinom$BUGSoutput$DIC
+  #   )
+  # )
 
   list(
-    dic_best = dic_choice(dics, thresh = thresh),
-    dics = dics,
+  #  dic_best = dic_choice(dics, thresh = thresh),
+   # dics = dics,
     models = models
   )
 }
