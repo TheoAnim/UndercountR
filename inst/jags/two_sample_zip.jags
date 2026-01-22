@@ -1,5 +1,4 @@
 model {
-
   # --- Observed data: Sample 1 ---
   for(i in 1:n1){
     yobs1[i] ~ dpois(muy1[i])
@@ -38,7 +37,4 @@ model {
   pi1     ~ prior_pi1
   pi2     ~ prior_pi2
 
-  # difference in expected counts
-  delta <- lambda1 - lambda2
-  is_greater <- step(delta)
 }

@@ -13,3 +13,7 @@ Imports:
   ggplot2,
   dplyr,
   tidyr
+Suggests: 
+    knitr,
+    rmarkdown
+VignetteBuilder: knitr

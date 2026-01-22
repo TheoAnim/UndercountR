@@ -27,8 +27,6 @@ model {
   #Derived quantity:
   mu1 <- lambda1 * p1
   mu2 <- lambda2 * p2
-  # difference in expected counts
-  delta <- lambda1 - lambda2
-  is_greater <- step(delta)
+
 
 }

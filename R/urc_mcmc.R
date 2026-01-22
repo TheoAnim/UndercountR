@@ -6,16 +6,27 @@
 #' parsimonious model based on the Deviance Information Criterion (DIC).
 #'
 #' @param x A named list containing the data(observed counts, true "unobserved counts" and validation set) to be passed to the JAGS models.
+#'
 #' @param thresh Numeric. Threshold for deciding between models when DICs are close.
+#'
 #' @param prior_lambda A prior distribution for the Poisson or ZIP rate parameter \code{lambda}.
+#'
 #' @param prior_p A prior distribution for the reporting probability \code{p}.
+#'
 #' @param prior_pi A prior distribution for the zero-inflation probability \code{pi} (ZIP only).
+#'
 #' @param prior_c A prior distribution for the dispersion parameter \code{c} (NB only).
+#'
 #' @param n_iter Integer. Total number of MCMC iterations per chain.
+#'
 #' @param n_chains Integer. Number of MCMC chains.
+#'
 #' @param n_burnin Integer. Number of burn-in iterations to discard.
+#'
 #' @param inits Optional. A function or list specifying initial values for the MCMC.
+#'
 #' @param seed Integer. Random seed for reproducibility.
+#'
 #' @param parallel Logical.
 #'   If `TRUE`, model fitting is performed in parallel using the
 #'   \pkg{future} and \pkg{furrr} frameworks.
@@ -30,7 +41,6 @@
 #' }
 #'
 #' @export
-
 
 urc_mcmc <- function(x,
                      thresh = 2,
