@@ -1,5 +1,5 @@
 ---
-title: "my-vignette"
+title: "Bayesian Underreported Count Model"
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{my-vignette}
@@ -13,6 +13,12 @@ knitr::opts_chunk$set(
   comment = "#>"
 )
 ```
+
+The **BUCM** packages provides an interface to fit Bayesian model to count data. The package is in it's simplest form without allowing for covariates(coming soon).
+
+Three different distributions of count data are supported. However, **BUCM** also includes model selection components that users can use to determine plausible underlying distribution for the count data. Model fti can easily be assess with other diagnostic functions available in the package. To the best of our knowledge, other MCMC diagnostic tools support this package.
+
+## Getting Started 
 
 ```{r setup}
 library(BUCM)
