@@ -11,6 +11,8 @@ urc_trace(model, parameters = NULL, deviance = FALSE)
 
 \item{parameters}{Optional character vector of parameter names to include.
 If \code{NULL}, all parameters are plotted with deviance excluded}
+
+\item{deviance}{Logical specifying whether to include plot of posterior deviance. Default is \code{deviance = FALSE}.}
 }
 \value{
 A \code{ggplot} object showing trace plots for each parameter across iterations and chains.

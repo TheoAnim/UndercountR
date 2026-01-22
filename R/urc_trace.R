@@ -1,8 +1,13 @@
 #' @title Plot MCMC Trace Plots
 #' @description Generates trace plots for each parameter from the BUGS MCMC output.
+#'
 #' @param model A model object returned by \code{UndercountR::urc_mcmc()}.
+#'
 #' @param parameters Optional character vector of parameter names to include.
 #'        If \code{NULL}, all parameters are plotted with deviance excluded
+#'
+#' @param deviance Logical specifying whether to include plot of posterior deviance. Default is \code{deviance = FALSE}.
+#'
 #' @return A \code{ggplot} object showing trace plots for each parameter across iterations and chains.
 #' @export
 #' @examples
@@ -10,7 +15,6 @@
 #' output <- urc_mcmc(data = mydata)
 #' urc_density(output$models$poisson)
 #' }
-
 urc_trace <- function(model, parameters = NULL, deviance = FALSE) {
   if (is.null(model$BUGSoutput$sims.array)) {
     stop("The provided model object does not contain 'sims.array' MCMC output.")
@@ -44,15 +48,14 @@ urc_trace <- function(model, parameters = NULL, deviance = FALSE) {
   if (!deviance) {
     trace_data <- dplyr::filter(trace_data, parameter != "deviance")
   }
-  trace_data <- dplyr::filter(trace_data, !grepl("^loglik\\[", parameter))
+  trace_data <- dplyr::filter(trace_data, with(trace_data, !grepl("^loglik\\[", parameter)))
 
-  ggplot2::ggplot(trace_data, ggplot2::aes(x = .iter, y = value, color = .chain)) +
+  ggplot2::ggplot(trace_data, with(trace_data, ggplot2::aes(x = .iter, y = value, color = .chain))) +
     ggplot2::geom_line() +
-    ggplot2::facet_wrap(~parameter, scales = "free") +
+    ggplot2::facet_wrap(~ with(trace_data, parameter), scales = "free") +
     ggplot2::labs(
       x = "Iteration",
       y = "Value",
       color = "Chain"
     )
-
 }

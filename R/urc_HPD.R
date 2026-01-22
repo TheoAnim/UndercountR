@@ -2,7 +2,7 @@
 #' @description Visualizes the Highest Posterior Density (HPD) intervals for each parameter in the MCMC output.
 #'
 #' @param model A model object returned by \code{UndercountR::urc_mcmc()}.
-#' @param params Optional character vector of parameter names to include. Default \code{'all'} plots posteriors of all parameters except \code{deviance}
+#' @param parameters Optional character vector of parameter names to include. Default \code{'all'} plots posteriors of all parameters except \code{deviance}
 #' @param level Credible level(default is 0.95).
 #' @param deviance Logical specifying whether to include plot of posterior deviance. Default is \code{deviance = FALSE}.
 #' @return A \code{ggplot} object showing HPD credible intervals.
@@ -13,7 +13,6 @@
 #' output <- urc_mcmc(data = mydata)
 #' urc_HPD(output$models$poisson)
 #' }
-
 urc_HPD <- function(model,
                     parameters = NULL,
                     deviance = FALSE,
@@ -37,12 +36,12 @@ urc_HPD <- function(model,
     upper = hpd[, "upper"],
     mean = mean_vals
   )
-  if(!deviance){
-    plot_data <- dplyr::filter(plot_data, parameter != "deviance")
+  if (!deviance) {
+    plot_data <- dplyr::filter(plot_data, with(plot_data, parameter != "deviance"))
   }
-  plot_data <- dplyr::filter(plot_data, !grepl("^loglik\\[", parameter))
-  ggplot2::ggplot(plot_data, ggplot2::aes(x = parameter)) +
-    ggplot2::geom_pointrange(ggplot2::aes(y = mean, ymin = lower, ymax = upper)) +
+  plot_data <- dplyr::filter(plot_data, with(plot_data, !grepl("^loglik\\[", parameter)))
+  ggplot2::ggplot(plot_data, with(plot_data, ggplot2::aes(x = parameter))) +
+    ggplot2::geom_pointrange(with(plot_data, ggplot2::aes(y = mean, ymin = lower, ymax = upper))) +
     ggplot2::coord_flip() +
     ggplot2::labs(
       title = glue::glue("{level * 100}% HPD Credible Intervals"),

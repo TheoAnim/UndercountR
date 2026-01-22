@@ -4,13 +4,15 @@
 \alias{urc_hist}
 \title{Plot Posterior Histogram}
 \usage{
-urc_hist(model, paramaters = NULL, deviance = FALSE)
+urc_hist(model, parameters = NULL, deviance = FALSE)
 }
 \arguments{
 \item{model}{A model object returned by \code{UndercountR::urc_mcmc()}.}
 
 \item{parameters}{Optional character vector of parameter names to include in the plot.
 If \code{NULL} (default), all parameters are plotted except deviance}
+
+\item{deviance}{Logical specifying whether to include plot of posterior deviance. Default is \code{deviance = FALSE}.}
 }
 \value{
 A \code{ggplot} object showing posterior histogram for each parameter.

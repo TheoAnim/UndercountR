@@ -5,11 +5,11 @@ waic_choice <- function(df, thresh) {
   }
   min_waic <- min(df$waic)
 
-  #models within 2 units of the min WAIC
+  # models within 2 units of the min WAIC
   candidate_models <- df$model_names[df$waic - min_waic <= thresh]
   # If there are competing models, choose based on parsimony
   if (length(candidate_models) > 1 &
-      "poisson" %in% candidate_models) {
+    "poisson" %in% candidate_models) {
     # If poisson is among candidates, choose it (most parsimonious)
     "poisson"
   }

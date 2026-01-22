@@ -44,37 +44,37 @@ urc_mcmc <- function(x,
                      seed = 123,
                      inits = NULL,
                      parallel = FALSE) {
-
-  #setup to parallize
+  # setup to parallize
   if (.Platform$OS.type == "windows") {
     future::plan(future::multisession, workers = 3)
-  } else{
+  } else {
     future::plan(future::multicore, workers = 3)
   }
 
   if (!is.list(x) ||
-      !all(c("yobs", "ystar", "yval") %in% names(x))) {
+    !all(c("yobs", "ystar", "yval") %in% names(x))) {
     stop("Argument 'x' must be a named list containing 'yobs', 'ystar', and 'yval'.")
   }
 
-  #define parameters
-  parameters_poisson <-  c("mu", "lambda", "p", "loglik")
+  # define parameters
+  parameters_poisson <- c("mu", "lambda", "p", "loglik")
   parameters_zip <- c("lambda", "p", "pi", "loglik")
   parameters_nb <- c("lambda", "c", "p", "loglik")
 
 
-  #function to fit each model
+  # function to fit each model
   fit_model <- function(file_name, parameters) {
     data <- x
     data$n_obs <- length(data$yobs)
     data$n_valdata <- length(data$ystar)
 
     file_path <- system.file(file.path("jags", file_name),
-                             package = "UndercountR",
-                             mustWork = TRUE)
+      package = "UndercountR",
+      mustWork = TRUE
+    )
     lines <- readLines(file_path)
 
-    #input user-specified priors
+    # input user-specified priors
     if (grepl("nb", file_name)) {
       lines <- gsub(
         pattern = "prior_c",
@@ -120,10 +120,11 @@ urc_mcmc <- function(x,
   # Parallelized model fitting
   if (parallel) {
     model_outputs <- furrr::future_map2(model_files,
-                                        model_params,
-                                        fit_model,
-                                        .options = furrr::furrr_options(seed = seed))
-  } else{
+      model_params,
+      fit_model,
+      .options = furrr::furrr_options(seed = seed)
+    )
+  } else {
     model_outputs <- purrr::map2(model_files, model_params, fit_model)
   }
 
@@ -132,7 +133,7 @@ urc_mcmc <- function(x,
   models <- rlang::set_names(model_outputs, model_names)
 
   #---------------------metrics----------------------------------------
-  dics <- tibble(
+  dics <- data.frame(
     model_names,
     DIC = c(
       models$poisson$BUGSoutput$DIC,
@@ -140,10 +141,10 @@ urc_mcmc <- function(x,
       models$negbinom$BUGSoutput$DIC
     )
   )
-  waics <- waic_comparison(models) #creates a tibble with waic for each model
+  waics <- waic_comparison(models) # creates a df with waic for each model
   loos <- loo_comparison(models)
 
-  #named list of jags model and metrics
+  # named list of jags model and metrics
   list(
     models = models,
     dics = dics,

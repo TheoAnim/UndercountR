@@ -9,11 +9,11 @@ urc_HPD(model, parameters = NULL, deviance = FALSE, level = 0.95)
 \arguments{
 \item{model}{A model object returned by \code{UndercountR::urc_mcmc()}.}
 
+\item{parameters}{Optional character vector of parameter names to include. Default \code{'all'} plots posteriors of all parameters except \code{deviance}}
+
 \item{deviance}{Logical specifying whether to include plot of posterior deviance. Default is \code{deviance = FALSE}.}
 
 \item{level}{Credible level(default is 0.95).}
-
-\item{params}{Optional character vector of parameter names to include. Default \code{'all'} plots posteriors of all parameters except \code{deviance}}
 }
 \value{
 A \code{ggplot} object showing HPD credible intervals.

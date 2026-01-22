@@ -1,4 +1,5 @@
 #' @title Fit Two-Sample Underreported Count Models via JAGS
+#'
 #' @description
 #' Fits Poisson, zero-inflated Poisson (ZIP), and negative binomial (NB) models
 #' for two independent underreported count samples using JAGS.
@@ -8,20 +9,35 @@
 #'   \code{yobs1}, \code{yobs2} (observed counts),
 #'   \code{ystar1}, \code{ystar2} (true counts for validation),
 #'   \code{yval1}, \code{yval2} (validation observed counts)
+#'
 #' @param thresh Numeric. Threshold for deciding between models when DICs are close. Default is 2.
+#'
 #' @param prior_lambda1 Prior for lambda (sample 1, Poisson/NB)
+#'
 #' @param prior_lambda2 Prior for lambda (sample 2, Poisson/NB)
+#'
 #' @param prior_p1 Prior for reporting probability (sample 1)
+#'
 #' @param prior_p2 Prior for reporting probability (sample 2)
+#'
 #' @param prior_pi1 Prior for zero-inflation probability (sample 1, ZIP only)
+#'
 #' @param prior_pi2 Prior for zero-inflation probability (sample 2, ZIP only)
+#'
 #' @param prior_c1 Prior for NB dispersion (sample 1, NB only)
+#'
 #' @param prior_c2 Prior for NB dispersion (sample 2, NB only)
+#'
 #' @param n_iter Total number of MCMC iterations per chain.
+#'
 #' @param n_chains Number of MCMC chains.
+#'
 #' @param n_burnin Number of burn-in iterations.
+#'
 #' @param inits Optional initial values (function or list).
+#'
 #' @param seed Random seed for reproducibility.
+#'
 #' @param parallel Logical.
 #'   If `TRUE`, model fitting is performed in parallel using the
 #'   \pkg{future} and \pkg{furrr} frameworks.
@@ -40,12 +56,12 @@ urc_two_mcmc <- function(x,
                          thresh = 2,
                          prior_lambda1 = "dgamma(0.1,0.1)",
                          prior_lambda2 = "dgamma(0.1,0.1)",
-                         prior_p1      = "dbeta(1,1)",
-                         prior_p2      = "dbeta(1,1)",
-                         prior_pi1     = "dbeta(1,1)",
-                         prior_pi2     = "dbeta(1,1)",
-                         prior_c1      = "dgamma(0.1,0.1)",
-                         prior_c2      = "dgamma(0.1,0.1)",
+                         prior_p1 = "dbeta(1,1)",
+                         prior_p2 = "dbeta(1,1)",
+                         prior_pi1 = "dbeta(1,1)",
+                         prior_pi2 = "dbeta(1,1)",
+                         prior_c1 = "dgamma(0.1,0.1)",
+                         prior_c2 = "dgamma(0.1,0.1)",
                          n_iter = 8e3,
                          n_chains = 2,
                          n_burnin = 4e3,
@@ -53,21 +69,22 @@ urc_two_mcmc <- function(x,
                          seed = 123,
                          parallel = FALSE) {
   # --- sample sizes ---
-  x$n1  <- length(x$yobs1)
-  x$n2  <- length(x$yobs2)
+  x$n1 <- length(x$yobs1)
+  x$n2 <- length(x$yobs2)
   x$nv1 <- length(x$ystar1)
   x$nv2 <- length(x$ystar2)
 
   # --- parameters for each model ---
   parameters_poisson <- c("lambda1", "lambda2", "p1", "p2", "mu1", "mu2")
-  parameters_zip     <- c("lambda1", "lambda2", "p1", "p2", "pi1", "pi2")
-  parameters_nb      <- c("lambda1", "lambda2", "p1", "p2", "c1", "c2")
+  parameters_zip <- c("lambda1", "lambda2", "p1", "p2", "pi1", "pi2")
+  parameters_nb <- c("lambda1", "lambda2", "p1", "p2", "c1", "c2")
 
   # --- function to fit a single model ---
   fit_model <- function(file_name, parameters) {
     file_path <- system.file(file.path("jags", file_name),
-                             package = "UndercountR",
-                             mustWork = TRUE)
+      package = "UndercountR",
+      mustWork = TRUE
+    )
     lines <- readLines(file_path)
 
     # replace priors
@@ -80,13 +97,15 @@ urc_two_mcmc <- function(x,
       lines <- gsub("prior_pi2", prior_pi2, lines, fixed = TRUE)
     }
     lines <- gsub("prior_lambda1",
-                  prior_lambda1,
-                  fixed = TRUE,
-                  x = lines)
+      prior_lambda1,
+      fixed = TRUE,
+      x = lines
+    )
     lines <- gsub("prior_lambda2",
-                  prior_lambda2,
-                  fixed = TRUE,
-                  x = lines)
+      prior_lambda2,
+      fixed = TRUE,
+      x = lines
+    )
     lines <- gsub("prior_p1", prior_p1, fixed = TRUE, x = lines)
     lines <- gsub("prior_p2", prior_p2, fixed = TRUE, x = lines)
 
@@ -105,45 +124,86 @@ urc_two_mcmc <- function(x,
       DIC = TRUE,
       quiet = TRUE,
       RNGname = "Wichmann-Hill",
-      jags.seed = seed#,
-      #working.directory = getwd()
+      jags.seed = seed # ,
+      # working.directory = getwd()
     )
   }
 
   # --- JAGS files ---
-  model_files <- c("two_sample_poisson.jags",
-                   "two_sample_zip.jags",
-                   "two_sample_nb.jags")
+  model_files <- c(
+    "two_sample_poisson.jags",
+    "two_sample_zip.jags",
+    "two_sample_nb.jags"
+  )
   model_params <- list(parameters_poisson, parameters_zip, parameters_nb)
 
   # --- fit models in parallel --
   if (parallel) {
     model_outputs <- furrr::future_map2(model_files,
-                                        model_params,
-                                        fit_model,
-                                        .options = furrr::furrr_options(seed = seed))
-  } else{
+      model_params,
+      fit_model,
+      .options = furrr::furrr_options(seed = seed)
+    )
+  } else {
     model_outputs <- purrr::map2(model_files, model_params, fit_model)
   }
   model_names <- c("poisson", "zip", "negbinom")
   models <- rlang::set_names(model_outputs, model_names)
 
-  #Manually compute delta for each model
+  # Manually compute delta for each model
+  # for (m in names(models)) {
+  #   # A. Update sims.list
+  #   sims <- models[[m]]$BUGSoutput$sims.list
+  #   delta_vec <- sims$lambda1 - sims$lambda2
+  #
+  #   models[[m]]$BUGSoutput$sims.list$delta <- delta_vec
+  #
+  #   existing_mat <- models[[m]]$BUGSoutput$sims.matrix
+  #   new_mat <- cbind(existing_mat, delta_vec)
+  #   colnames(new_mat) <- c(colnames(existing_mat), "delta")
+  #
+  #   # # Combine and save back to the model object
+  #   models[[m]]$BUGSoutput$sims.matrix <- new_mat
+  #
+  # }
+
   for (m in names(models)) {
-    # A. Update sims.list
-    sims <- models[[m]]$BUGSoutput$sims.list
-    delta_vec <- sims$lambda1 - sims$lambda2
+    ## Extract BUGS output
+    bugs <- models[[m]]$BUGSoutput
 
-    models[[m]]$BUGSoutput$sims.list$delta <- delta_vec
+    ## Compute delta
+    delta_vec <- bugs$sims.list$lambda1 - bugs$sims.list$lambda2
 
-    existing_mat <- models[[m]]$BUGSoutput$sims.matrix
-    new_mat <- cbind(existing_mat, delta_vec)
-    colnames(new_mat) <- c(colnames(existing_mat), "delta")
+    ## Update sims.list
+    bugs$sims.list$delta <- delta_vec
 
-    # # Combine and save back to the model object
-    models[[m]]$BUGSoutput$sims.matrix <- new_mat
+    ## Update sims.matrix
+    new_mat <- cbind(bugs$sims.matrix, delta_vec)
+    colnames(new_mat) <- c(colnames(bugs$sims.matrix), "delta")
+    bugs$sims.matrix <- new_mat
 
+    ## Update sims.array
+    sims_array <- bugs$sims.array
+    n_iter <- dim(sims_array)[1]
+    n_chain <- dim(sims_array)[2]
+
+    ## Reshape delta to (iter × chain)
+    delta_array <- array(delta_vec,
+      dim = c(n_iter, n_chain, 1),
+      dimnames = list(
+        dimnames(sims_array)[[1]],
+        dimnames(sims_array)[[2]],
+        "delta"
+      )
+    )
+
+    ## Bind along parameter dimension
+    bugs$sims.array <- abind::abind(sims_array, delta_array, along = 3)
+
+    ## Save back
+    models[[m]]$BUGSoutput <- bugs
   }
+
 
   # # --- DIC table ---
   # dics <- tibble::tibble(
@@ -156,9 +216,8 @@ urc_two_mcmc <- function(x,
   # )
 
   list(
-  #  dic_best = dic_choice(dics, thresh = thresh),
-   # dics = dics,
+    #  dic_best = dic_choice(dics, thresh = thresh),
+    # dics = dics,
     models = models
   )
 }
-

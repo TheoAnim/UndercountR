@@ -1,6 +1,6 @@
-#' Compare Models Using WAIC
+#' Compare Models Using Loo
 #'
-#' Calculates the Widely Applicable Information Criterion (WAIC) for multiple
+#' Calculates the Widely Applicable Information Criterion (loo) for multiple
 #' Bayesian models fit using JAGS and returns a comparison table.
 #'
 #' @param models A list containing JAGS `models` for Poisson, ZIP and Negative Binomial
@@ -9,14 +9,14 @@
 #' @param thresh Numeric threshold for model comparison (default = 2).
 #'
 #' @export
-waic_comparison <- function(models, thresh = 2){
-  #models <- jagsoutput$models
+loo_comparison <- function(models, thresh = 2) {
+  # models <- jagsoutput$models
   model_names <- c("poisson", "zip", "negbinom")
-  waic_values <- furrr::future_map(models, \(x) x$BUGSoutput$sims.list$loglik) |>
-    furrr::future_map(loo::waic) |>
-    furrr::future_map_dbl(\(x) x$estimates["waic", 'Estimate'])
-  tibble(
+  loo_values <- furrr::future_map(models, \(x) x$BUGSoutput$sims.list$loglik) |>
+    furrr::future_map(loo::loo) |>
+    furrr::future_map_dbl(\(x) x$estimates["looic", "Estimate"])
+  data.frame(
     model_names = model_names,
-    waic = waic_values
+    loo = loo_values
   )
 }

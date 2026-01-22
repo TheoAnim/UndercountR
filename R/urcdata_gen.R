@@ -8,21 +8,19 @@ urcdata_gen <- function(lambda, p, pi = 0, c = 1, nobs = 100, nv = 0, fun) {
   } else if (fun == "rzip") {
     ystar <- bizicount::rzip(nv, lambda, pi)
     yv <- rbinom(nv, size = ystar, prob = p)
-    y <- bizicount::rzip(nobs, lambda*p, pi)
-  } else if (fun == "rnegbin"){
+    y <- bizicount::rzip(nobs, lambda * p, pi)
+  } else if (fun == "rnegbin") {
     ystar <- rnbinom(nv, mu = lambda, size = c)
     yv <- rbinom(nv, size = ystar, prob = p)
     y <- rnbinom(nobs, mu = lambda * p, size = c)
-  } else{
+  } else {
     stop("fun must be rpois, rzip or rnegbin", call. = FALSE)
   }
   list(
     yval = yv,
-    #n_obs = nobs,
-    #nv = nv,
+    # n_obs = nobs,
+    # nv = nv,
     ystar = ystar,
     yobs = y
   )
 }
-
-

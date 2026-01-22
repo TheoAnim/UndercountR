@@ -4,13 +4,15 @@
 \alias{urc_density}
 \title{Plot Posterior Densities}
 \usage{
-urc_density(model, paramaters = NULL, deviance = FALSE)
+urc_density(model, parameters = NULL, deviance = FALSE)
 }
 \arguments{
 \item{model}{A model object of class \code{"rjags"} returned by \code{UndercountR::urc_mcmc()}.}
 
 \item{parameters}{Optional character vector of parameter names to include in the plot.
 If \code{NULL} (default), all parameters are plotted except deviance}
+
+\item{deviance}{Logical specifying whether to include plot of posterior deviance. Default is \code{deviance = FALSE}.}
 }
 \value{
 A \code{ggplot} object showing posterior densities for each parameter.
@@ -20,9 +22,9 @@ Creates a density plot for each parameter in the BUGS MCMC output.
 }
 \examples{
 \dontrun{
-  output <- urc_mcmc(data = mydata)
+output <- urc_mcmc(data = mydata)
 
-  # Plot posterior densities for the Poisson model
-  urc_density(output$models$poisson)
+# Plot posterior densities for the Poisson model
+urc_density(output$models$poisson)
 }
 }
