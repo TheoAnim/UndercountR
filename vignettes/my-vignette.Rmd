@@ -14,12 +14,74 @@ knitr::opts_chunk$set(
 )
 ```
 
+```{css, include = FALSE}
+.justify {
+  text-align: justify;
+}
+```
+
 The **BUCM** packages provides an interface to fit Bayesian model to count data. The package is in it's simplest form without allowing for covariates(coming soon).
 
-Three different distributions of count data are supported. However, **BUCM** also includes model selection components that users can use to determine plausible underlying distribution for the count data. Model fti can easily be assess with other diagnostic functions available in the package. To the best of our knowledge, other MCMC diagnostic tools support this package.
+Three different distributions of count data are supported. However, **BUCM** also includes model selection components that users can use to determine plausible underlying distribution for the count data. Model fit can easily be assess with other diagnostic functions available in the package. To the best of our knowledge, other MCMC diagnostic tools support this package.
 
-## Getting Started 
+## Installation
 
+Install the latest version from **Github**
+
+```{r, eval = FALSE}
+remotes::install_github("TheoAnim/BUCM")
+```
+
+## How to use BUCM
 ```{r setup}
 library(BUCM)
+```
+
+
+As an example, we simulate data from poisson with underreporting
+```{r}
+set.seed(3)
+nv <- 30
+nobs <- 100
+lambda <- 4
+p <- .6
+ystar <- rpois(nv, lambda)
+yval <- rbinom(nv, ystar, p)
+yobs <- rpois(nobs, lambda * p)
+
+
+data.frame(y = c(ystar, yval, yobs),
+           type = c(rep("ystar", nv), rep("yval", nv), rep("yobs", nobs))) |>
+  ggplot() +
+  geom_bar(aes(y)) +
+  facet_grid( ~ type)+
+  labs(x = "data")
+```
+
+
+```{r}
+jags_models <- BUCM::urc_mcmc(x = list(ystar = ystar, yval = yval, yobs = yobs))
+jags_models$dic_best
+
+```
+
+The log-likelihoods are monitored for WAIC and LOO computation, so you must explicitly specify the parameters; otherwise, a summary of the log-likelihoods will be included.
+```{r}
+jags_models$models$poisson |> MCMCvis::MCMCsummary(params = c("mu", "lambda", "p"))
+```
+
+```{r}
+jags_models$models$poisson |> BUCM::urc_trace(parameters = c("mu", "lambda", "p"))
+```
+
+```{r}
+jags_models$models$poisson$BUGSoutput$sims.array |> bayesplot::mcmc_dens(pars = c("mu", "lambda", "p"))
+```
+
+
+```{r}
+
+```{r}
+jags_models$models$poisson$BUGSoutput$sims.array |> bayesplot::mcmc_pairs(pars = c("mu", "lambda", "p"))
+```
 ```

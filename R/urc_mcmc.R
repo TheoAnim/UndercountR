@@ -63,7 +63,7 @@ urc_mcmc <- function(x,
 
   if (!is.list(x) ||
     !all(c("yobs", "ystar", "yval") %in% names(x))) {
-    stop("Argument 'x' must be a named list containing 'yobs', 'ystar', and 'yval'.")
+    stop("Argument 'x' must be a named list containing 'yobs', 'ystar', and 'yval'")
   }
 
   # define parameters
@@ -84,7 +84,7 @@ urc_mcmc <- function(x,
     )
     lines <- readLines(file_path)
 
-    # input user-specified priors
+    #user-specified priors
     if (grepl("nb", file_name)) {
       lines <- gsub(
         pattern = "prior_c",
@@ -95,15 +95,13 @@ urc_mcmc <- function(x,
     } else if (grepl("zip", file_name)) {
       lines <- gsub("prior_pi", prior_pi, lines, fixed = TRUE)
     }
-    # lines <- stringr::str_replace_all(lines,
-    #                                   c("prior_lambda" = prior_lambda,
-    #                                     "prior_p" = prior_p))
     lines <- gsub("prior_lambda", prior_lambda, lines, fixed = TRUE)
     lines <- gsub("prior_p", prior_p, lines, fixed = TRUE)
 
     temp <- tempfile()
     on.exit(unlink(temp, force = TRUE))
     writeLines(lines, temp)
+    #avoids loglik printed to the console
     model <- R2jags::jags(
       model.file = temp,
       data = data,
