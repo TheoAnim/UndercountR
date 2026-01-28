@@ -75,14 +75,14 @@ urc_two_mcmc <- function(x,
   x$nv2 <- length(x$ystar2)
 
   # --- parameters for each model ---
-  parameters_poisson <- c("lambda1", "lambda2", "p1", "p2", "mu1", "mu2")
-  parameters_zip <- c("lambda1", "lambda2", "p1", "p2", "pi1", "pi2")
-  parameters_nb <- c("lambda1", "lambda2", "p1", "p2", "c1", "c2")
+  parameters_poisson <- c("lambda1", "lambda2", "delta", "p1", "p2", "mu1", "mu2")
+  parameters_zip <- c("lambda1", "lambda2", "delta", "p1", "p2", "pi1", "pi2")
+  parameters_nb <- c("lambda1", "lambda2", "delta", "p1", "p2", "c1", "c2")
 
   # --- function to fit a single model ---
   fit_model <- function(file_name, parameters) {
     file_path <- system.file(file.path("jags", file_name),
-      package = "UndercountR",
+      package = "BUCM",
       mustWork = TRUE
     )
     lines <- readLines(file_path)
@@ -167,42 +167,42 @@ urc_two_mcmc <- function(x,
   #
   # }
 
-  for (m in names(models)) {
-    ## Extract BUGS output
-    bugs <- models[[m]]$BUGSoutput
-
-    ## Compute delta
-    delta_vec <- bugs$sims.list$lambda1 - bugs$sims.list$lambda2
-
-    ## Update sims.list
-    bugs$sims.list$delta <- delta_vec
-
-    ## Update sims.matrix
-    new_mat <- cbind(bugs$sims.matrix, delta_vec)
-    colnames(new_mat) <- c(colnames(bugs$sims.matrix), "delta")
-    bugs$sims.matrix <- new_mat
-
-    ## Update sims.array
-    sims_array <- bugs$sims.array
-    n_iter <- dim(sims_array)[1]
-    n_chain <- dim(sims_array)[2]
-
-    ## Reshape delta to (iter × chain)
-    delta_array <- array(delta_vec,
-      dim = c(n_iter, n_chain, 1),
-      dimnames = list(
-        dimnames(sims_array)[[1]],
-        dimnames(sims_array)[[2]],
-        "delta"
-      )
-    )
-
-    ## Bind along parameter dimension
-    bugs$sims.array <- abind::abind(sims_array, delta_array, along = 3)
-
-    ## Save back
-    models[[m]]$BUGSoutput <- bugs
-  }
+  # for (m in names(models)) {
+  #   ## Extract BUGS output
+  #   bugs <- models[[m]]$BUGSoutput
+  #
+  #   ## Compute delta
+  #   delta_vec <- bugs$sims.list$lambda1 - bugs$sims.list$lambda2
+  #
+  #   ## Update sims.list
+  #   bugs$sims.list$delta <- delta_vec
+  #
+  #   ## Update sims.matrix
+  #   new_mat <- cbind(bugs$sims.matrix, delta_vec)
+  #   colnames(new_mat) <- c(colnames(bugs$sims.matrix), "delta")
+  #   bugs$sims.matrix <- new_mat
+  #
+  #   ## Update sims.array
+  #   sims_array <- bugs$sims.array
+  #   n_iter <- dim(sims_array)[1]
+  #   n_chain <- dim(sims_array)[2]
+  #
+  #   ## Reshape delta to (iter × chain)
+  #   delta_array <- array(delta_vec,
+  #     dim = c(n_iter, n_chain, 1),
+  #     dimnames = list(
+  #       dimnames(sims_array)[[1]],
+  #       dimnames(sims_array)[[2]],
+  #       "delta"
+  #     )
+  #   )
+  #
+  #   ## Bind along parameter dimension
+  #   bugs$sims.array <- abind::abind(sims_array, delta_array, along = 3)
+  #
+  #   ## Save back
+  #   models[[m]]$BUGSoutput <- bugs
+  # }
 
 
   # # --- DIC table ---
