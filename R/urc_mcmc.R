@@ -79,7 +79,7 @@ urc_mcmc <- function(x,
     data$n_valdata <- length(data$ystar)
 
     file_path <- system.file(file.path("jags", file_name),
-      package = "UndercountR",
+      package = "BUCM",
       mustWork = TRUE
     )
     lines <- readLines(file_path)
@@ -101,7 +101,7 @@ urc_mcmc <- function(x,
     temp <- tempfile()
     on.exit(unlink(temp, force = TRUE))
     writeLines(lines, temp)
-    #avoids loglik printed to the console
+
     model <- R2jags::jags(
       model.file = temp,
       data = data,

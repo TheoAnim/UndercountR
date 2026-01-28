@@ -35,6 +35,7 @@ remotes::install_github("TheoAnim/BUCM")
 ## How to use BUCM
 ```{r setup}
 library(BUCM)
+library(ggplot2)
 ```
 
 
@@ -80,8 +81,6 @@ jags_models$models$poisson$BUGSoutput$sims.array |> bayesplot::mcmc_dens(pars = 
 
 
 ```{r}
-
-```{r}
 jags_models$models$poisson$BUGSoutput$sims.array |> bayesplot::mcmc_pairs(pars = c("mu", "lambda", "p"))
 ```
-```
+
