@@ -39,7 +39,18 @@ library(ggplot2)
 ```
 
 
-As an example, we simulate data from poisson with underreporting
+As an example, we simulate data from Poisson subject to underreporting. Assume some validation data through which we know the true(latent) event count denoted by
+$$y^{\ast} \sim Poisson(\lambda)$$ 
+where $\lambda > 0$ is the expected(true) count.
+
+For all units, the reported count $y$ arises from a binomial mechanism. Conditional on the true count $y^{\ast}$,
+$$y|y^{\ast} \sim Binomial(y^{\ast}, p)$$ 
+where $p$ denotes the reporting probability.
+
+For the remaining units(the main study sample), only the underreported counts $y$ are observed.
+Marginally, we can derived the distribution of $y$ as:
+$$y \sim Poisson(\lambda p)$$ 
+
 ```{r}
 set.seed(3)
 nv <- 30
@@ -66,9 +77,9 @@ jags_models$dic_best
 
 ```
 
-The log-likelihoods are monitored for WAIC and LOO computation, so you must explicitly specify the parameters; otherwise, a summary of the log-likelihoods will be included.
+The log-likelihoods are monitored for WAIC and LOO-CV computation, so you must explicitly specify the parameters; otherwise, a summary of the log-likelihoods will be included. `ucr_mcmc` also returns the plausible model if using WAIC as the model selection method. The likelihoods are also returned for each model allowing users to compute and diagnose WAIC and LOO-CV methods(Take note of warnings for waic computations).
 ```{r}
-jags_models$models$poisson |> MCMCvis::MCMCsummary(params = c("mu", "lambda", "p"))
+jags_models$models$poisson |> MCMCvis::MCMCsummary(params = c("lambda", "p"))
 ```
 
 ```{r}
@@ -83,4 +94,25 @@ jags_models$models$poisson$BUGSoutput$sims.array |> bayesplot::mcmc_dens(pars = 
 ```{r}
 jags_models$models$poisson$BUGSoutput$sims.array |> bayesplot::mcmc_pairs(pars = c("mu", "lambda", "p"))
 ```
+
+
+Assuming no validation set, we can try informative priors in the parameters
+
+```{r}
+jags_model2 <- BUCM::urc_mcmc(
+  x = list(ystar = NA, yval = NA, yobs = yobs),
+  prior_lambda = "dgamma(40, 10)",
+  prior_p = "dbeta(60, 40)"
+)
+
+
+jags_model2$dic_best
+
+
+jags_model2$models$poisson |> MCMCvis::MCMCsummary(params = c("lambda", "p"))
+jags_model2$models$poisson$BUGSoutput$sims.array |> bayesplot::mcmc_trace(pars = c("lambda", "p"))
+
+jags_model2$models$poisson$BUGSoutput$sims.array |> bayesplot::mcmc_dens(pars = c("lambda", "p"))
+```
+
 

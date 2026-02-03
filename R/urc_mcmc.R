@@ -156,6 +156,8 @@ urc_mcmc <- function(x,
   list(
     models = models,
     dics = dics,
+    waics = waics,
+    loos = loos,
     dic_best = dic_choice(dics, thresh = thresh),
     waic_best = waic_choice(waics, thresh = thresh),
     loo_best = loo_choice(loos, thresh = thresh)
