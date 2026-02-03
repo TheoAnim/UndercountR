@@ -2,7 +2,7 @@
 title: "Bayesian Underreported Count Model"
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{my-vignette}
+  %\VignetteIndexEntry{Bayesian Underreported Count Model}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -10,8 +10,13 @@ vignette: >
 ```{r, include = FALSE}
 knitr::opts_chunk$set(
   collapse = TRUE,
-  comment = "#>"
+  comment = "#>",
+  fig.align = "center",
+  fig.width = 7,
+  fig.height = 5,
+  out.width = "90%"
 )
+bayesplot::color_scheme_set("viridis")
 ```
 
 ```{css, include = FALSE}
@@ -86,13 +91,16 @@ jags_models$models$poisson |> MCMCvis::MCMCsummary(params = c("lambda", "p"))
 jags_models$models$poisson |> BUCM::urc_trace(parameters = c("mu", "lambda", "p"))
 ```
 
+**BUCM** is compatible with bayesplot package. Pass array of posterior draws to create trace plots, density, posterior intervals and other diagnostic visualisations.
+
 ```{r}
-jags_models$models$poisson$BUGSoutput$sims.array |> bayesplot::mcmc_dens(pars = c("mu", "lambda", "p"))
+jm_poisson_array <- jags_models$models$poisson$BUGSoutput$sims.array
+bayesplot::mcmc_dens(jm_poisson_array, pars = c("mu", "lambda", "p"))
 ```
 
 
 ```{r}
-jags_models$models$poisson$BUGSoutput$sims.array |> bayesplot::mcmc_pairs(pars = c("mu", "lambda", "p"))
+bayesplot::mcmc_pairs(jm_poisson_array, pars = c("mu", "lambda", "p"))
 ```
 
 
@@ -110,9 +118,10 @@ jags_model2$dic_best
 
 
 jags_model2$models$poisson |> MCMCvis::MCMCsummary(params = c("lambda", "p"))
-jags_model2$models$poisson$BUGSoutput$sims.array |> bayesplot::mcmc_trace(pars = c("lambda", "p"))
+jm2_poisson_array <- jags_model2$models$poisson$BUGSoutput$sims.array
 
-jags_model2$models$poisson$BUGSoutput$sims.array |> bayesplot::mcmc_dens(pars = c("lambda", "p"))
+bayesplot::mcmc_trace(jm2_poisson_array, pars = c("lambda", "p"))
+bayesplot::mcmc_dens(jm2_poisson_array, pars = c("lambda", "p"))
 ```
 
 
