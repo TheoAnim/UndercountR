@@ -1,0 +1,159 @@
+#' @title Fit Count Models Without Accounting for Underreported Using JAGS
+#'
+#' @description
+#' Fits Poisson, zero-inflated Poisson (ZIP), and negative binomial (NB) models
+#' The function selects the most
+#' parsimonious model based on the Deviance Information Criterion (DIC).
+#'
+#' @param x A named list containing the data(observed counts) to be passed to the JAGS models.
+#'
+#' @param thresh Numeric. Threshold for deciding between models when DICs are close.
+#'
+#' @param prior_lambda A prior distribution for the Poisson or ZIP rate parameter \code{lambda}.
+#'
+#' @param prior_pi A prior distribution for the zero-inflation probability \code{pi} (ZIP only).
+#'
+#' @param prior_c A prior distribution for the dispersion parameter \code{c} (NB only).
+#'
+#' @param n_iter Integer. Total number of MCMC iterations per chain.
+#'
+#' @param n_chains Integer. Number of MCMC chains.
+#'
+#' @param n_burnin Integer. Number of burn-in iterations to discard.
+#'
+#' @param inits Optional. A function or list specifying initial values for the MCMC.
+#'
+#' @param seed Integer. Random seed for reproducibility.
+#'
+#' @param parallel Logical.
+#'   If `TRUE`, model fitting is performed in parallel using the
+#'   \pkg{future} and \pkg{furrr} frameworks.
+#'   This enables simultaneous fitting of the Poisson, zero-inflated Poisson,
+#'   and negative binomial models across multiple workers.
+#'   If `FALSE`, the models are fitted sequentially.
+#' @return A named list with the following components:
+#' \describe{
+#'   \item{models}{A list of fitted model objects (class \code{rjags}).}
+#'   \item{DICs}{A named numeric vector of DIC values for each model.}
+#'   \item{best_model}{The model with the lowest DIC.}
+#' }
+#'
+#' @export
+
+urc_mcmc_naive <- function(x,
+                     thresh = 2,
+                     prior_lambda = "dgamma(0.1, 0.1)",
+                     prior_c = "dgamma(0.1, 0.1)",
+                     prior_pi = "dbeta(1, 1)",
+                     n_iter = 8e3,
+                     n_chains = 2,
+                     n_burnin = 8e3 / 2,
+                     seed = 123,
+                     inits = NULL,
+                     parallel = FALSE) {
+  # setup to parallize
+  if (.Platform$OS.type == "windows") {
+    future::plan(future::multisession, workers = 3)
+  } else {
+    future::plan(future::multicore, workers = 3)
+  }
+
+  if (!is.list(x) ||
+      !all(c("yobs") %in% names(x))) {
+    stop("Argument 'x' must be a named list containing 'yobs'")
+  }
+
+  # define parameters for naive models
+  parameters_poisson <- c("lambda", "loglik")
+  parameters_zip <- c("lambda", "pi", "loglik")
+  parameters_nb <- c("lambda", "c", "loglik")
+
+
+  # function to fit each model
+  fit_model <- function(file_name, parameters) {
+    data <- x
+    data$n_obs <- length(data$yobs)
+    file_path <- system.file(file.path("jags", file_name),
+                             package = "BUCM",
+                             mustWork = TRUE
+    )
+    lines <- readLines(file_path)
+
+    #user-specified priors
+    if (grepl("nb", file_name)) {
+      lines <- gsub(
+        pattern = "prior_c",
+        replacement = prior_c,
+        x = lines,
+        fixed = TRUE
+      )
+    } else if (grepl("zip", file_name)) {
+      lines <- gsub("prior_pi", prior_pi, lines, fixed = TRUE)
+    }
+    lines <- gsub("prior_lambda", prior_lambda, lines, fixed = TRUE)
+
+    temp <- tempfile()
+    on.exit(unlink(temp, force = TRUE))
+    writeLines(lines, temp)
+
+    model <- R2jags::jags(
+      model.file = temp,
+      data = data,
+      parameters.to.save = parameters,
+      n.chains = n_chains,
+      n.iter = n_iter,
+      quiet = TRUE,
+      DIC = TRUE,
+      RNGname = "Wichmann-Hill",
+      inits = NULL,
+      n.burnin = n_burnin,
+      jags.seed = seed
+    )
+  }
+
+  model_files <- c(
+    "naive_poisson.jags",
+    "naive_zip.jags",
+    "naive_nb.jags"
+  )
+
+  model_params <- list(parameters_poisson, parameters_zip, parameters_nb)
+
+  # Parallelized model fitting
+  if (parallel) {
+    model_outputs <- furrr::future_map2(model_files,
+                                        model_params,
+                                        fit_model,
+                                        .options = furrr::furrr_options(seed = seed)
+    )
+  } else {
+    model_outputs <- purrr::map2(model_files, model_params, fit_model)
+  }
+
+  model_names <- c("poisson", "zip", "negbinom")
+
+  models <- rlang::set_names(model_outputs, model_names)
+
+  #---------------------metrics----------------------------------------
+  dics <- data.frame(
+    model_names,
+    DIC = c(
+      models$poisson$BUGSoutput$DIC,
+      models$zip$BUGSoutput$DIC,
+      models$negbinom$BUGSoutput$DIC
+    )
+  )
+  waics <- waic_comparison(models) # creates a df with waic for each model
+  loos <- loo_comparison(models)
+
+  # named list of jags model and metrics
+  list(
+    models = models,
+    dics = dics,
+    waics = waics,
+    loos = loos,
+    dic_best = dic_choice(dics, thresh = thresh),
+    waic_best = waic_choice(waics, thresh = thresh),
+    loo_best = loo_choice(loos, thresh = thresh)
+  )
+}

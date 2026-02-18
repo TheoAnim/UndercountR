@@ -7,6 +7,6 @@
 # * https://testthat.r-lib.org/articles/special-files.html
 
 library(testthat)
-library(UndercountR)
+library(BUCM)
 
-test_check("UndercountR")
+test_check("BUCM")

@@ -1,0 +1,11 @@
+model {
+        #data model
+        for(i in 1:n_obs){
+            yobs[i] ~ dpois(lambda)
+            loglik[i] <- logdensity.pois(yobs[i], lambda)
+          }
+
+  #prior
+        lambda ~ prior_lambda
+    }
+

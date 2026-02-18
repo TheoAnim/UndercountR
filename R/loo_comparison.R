@@ -9,7 +9,7 @@
 #' @param thresh Numeric threshold for model comparison (default = 2).
 #'
 #' @export
-loo_comparison <- function(models, thresh = 2) {
+loo_comparison <- function(models, thresh) {
   # models <- jagsoutput$models
   model_names <- c("poisson", "zip", "negbinom")
   loo_values <- furrr::future_map(models, \(x) x$BUGSoutput$sims.list$loglik) |>

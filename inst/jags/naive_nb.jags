@@ -1,0 +1,10 @@
+model{
+ for(i in 1:n_obs){
+            yobs[i] ~ dnegbin(prob, c)
+            loglik[i] <- logdensity.negbin(yobs[i], prob, c)
+          }
+    #hyperpriors
+    prob <- c/(c + lambda)
+    c ~ prior_c
+    lambda ~  prior_lambda
+}

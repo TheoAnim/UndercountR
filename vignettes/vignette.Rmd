@@ -104,7 +104,7 @@ bayesplot::mcmc_pairs(jm_poisson_array, pars = c("mu", "lambda", "p"))
 ```
 
 
-Assuming no validation set, we can try informative priors in the parameters
+Assuming no validation set, we can try informative priors on the parameters
 
 ```{r}
 jags_model2 <- BUCM::urc_mcmc(
