@@ -57,7 +57,7 @@ urc_mcmc <- function(x,
                      quiet = TRUE,
                      ...) {
 
-  # --- 1. Input Validation ---
+  # ---Input Validation ---
   if (!is.list(x) || !all(c("yobs", "ystar", "yval") %in% names(x))) {
     stop("Argument 'x' must be a named list containing 'yobs', 'ystar', and 'yval'")
   }
@@ -73,7 +73,7 @@ urc_mcmc <- function(x,
     warning("Parallel = TRUE but no plan set. Running sequentially. Run plan(multisession) first.")
   }
 
-  # --- 2. Setup Paths and Parameters ---
+  # ---Setup Paths and Parameters ---
   model_filenames <- c("underreported_poisson.jags", "underreported_zip.jags", "underreported_nb.jags")
   model_paths <- purrr::map_chr(model_filenames, ~{
     path <- system.file("jags", .x, package = "BUCM")
@@ -87,7 +87,7 @@ urc_mcmc <- function(x,
     c("lambda", "c", "p", "loglik")
   )
 
-  # --- 3. Internal Fit Function ---
+  # ---Internal Fit Function ---
   fit_model <- function(file_path, parameters) {
     data_list <- x
     data_list$n_obs <- length(data_list$yobs)
@@ -127,7 +127,7 @@ urc_mcmc <- function(x,
     do.call(R2jags::jags, final_args)
   }
 
-  # --- 4. Execution ---
+  # ---Execution ---
   if (parallel) {
     model_outputs <- furrr::future_map2(
       model_paths, model_params, fit_model,
@@ -144,7 +144,7 @@ urc_mcmc <- function(x,
   model_names <- c("poisson", "zip", "negbinom")
   models <- rlang::set_names(model_outputs, model_names)
 
-  # --- 5. Metrics and Selection ---
+  # --- Metrics and Selection ---
   dics <- data.frame(
     model_names,
     DIC = purrr::map_dbl(models, ~ .x$BUGSoutput$DIC)
