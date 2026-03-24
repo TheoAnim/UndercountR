@@ -50,104 +50,104 @@ urc_mcmc <- function(x,
                      prior_pi = "dbeta(1, 1)",
                      n_iter = 8e3,
                      n_chains = 2,
-                     n_burnin = 8e3 / 2,
+                     n_burnin = floor(n_iter / 2),
                      seed = 123,
                      inits = NULL,
-                     parallel = FALSE) {
-  # setup to parallize
-  if (.Platform$OS.type == "windows") {
-    future::plan(future::multisession, workers = 3)
-  } else {
-    future::plan(future::multicore, workers = 3)
-  }
+                     parallel = FALSE,
+                     quiet = TRUE,
+                     ...) {
 
-  if (!is.list(x) ||
-    !all(c("yobs", "ystar", "yval") %in% names(x))) {
+  # --- 1. Input Validation ---
+  if (!is.list(x) || !all(c("yobs", "ystar", "yval") %in% names(x))) {
     stop("Argument 'x' must be a named list containing 'yobs', 'ystar', and 'yval'")
   }
 
-  # define parameters
-  parameters_poisson <- c("mu", "lambda", "p", "loglik")
-  parameters_zip <- c("lambda", "p", "pi", "loglik")
-  parameters_nb <- c("lambda", "c", "p", "loglik")
+  # Logic check to prevent JAGS Inconsistent Node errors
+  # yval (confirmed counts) cannot be greater than ystar (total true counts)
+  if (any(x$yval > x$ystar, na.rm = TRUE)) {
+    stop("Logical error: 'yval' cannot be greater than 'ystar' in validation data.")
+  }
 
+  # Check parallel plan
+  if (parallel && inherits(future::plan(), "sequential")) {
+    warning("Parallel = TRUE but no plan set. Running sequentially. Run plan(multisession) first.")
+  }
 
-  # function to fit each model
-  fit_model <- function(file_name, parameters) {
-    data <- x
-    data$n_obs <- length(data$yobs)
-    data$n_valdata <- length(data$ystar)
+  # --- 2. Setup Paths and Parameters ---
+  model_filenames <- c("underreported_poisson.jags", "underreported_zip.jags", "underreported_nb.jags")
+  model_paths <- purrr::map_chr(model_filenames, ~{
+    path <- system.file("jags", .x, package = "BUCM")
+    if (path == "") stop(paste("JAGS file not found:", .x))
+    path
+  })
 
-    file_path <- system.file(file.path("jags", file_name),
-      package = "BUCM",
-      mustWork = TRUE
-    )
+  model_params <- list(
+    c("mu", "lambda", "p", "loglik"),
+    c("lambda", "p", "pi", "loglik"),
+    c("lambda", "c", "p", "loglik")
+  )
+
+  # --- 3. Internal Fit Function ---
+  fit_model <- function(file_path, parameters) {
+    data_list <- x
+    data_list$n_obs <- length(data_list$yobs)
+    data_list$n_valdata <- length(data_list$ystar)
+
     lines <- readLines(file_path)
 
-    #user-specified priors
-    if (grepl("nb", file_name)) {
-      lines <- gsub(
-        pattern = "prior_c",
-        replacement = prior_c,
-        x = lines,
-        fixed = TRUE
-      )
-    } else if (grepl("zip", file_name)) {
+    # Priors by User
+    if (grepl("nb", file_path)) {
+      lines <- gsub("prior_c", prior_c, lines, fixed = TRUE)
+    } else if (grepl("zip", file_path)) {
       lines <- gsub("prior_pi", prior_pi, lines, fixed = TRUE)
     }
     lines <- gsub("prior_lambda", prior_lambda, lines, fixed = TRUE)
     lines <- gsub("prior_p", prior_p, lines, fixed = TRUE)
 
-    temp <- tempfile()
-    on.exit(unlink(temp, force = TRUE))
+    temp <- tempfile(fileext = ".jags")
     writeLines(lines, temp)
+    on.exit(unlink(temp), add = TRUE)
 
-    model <- R2jags::jags(
+    # Use modifyList to handle ellipsis (...) without double-argument errors
+    jags_args <- list(
       model.file = temp,
-      data = data,
+      data = data_list,
       parameters.to.save = parameters,
       n.chains = n_chains,
       n.iter = n_iter,
-      quiet = TRUE,
-      DIC = TRUE,
-      RNGname = "Wichmann-Hill",
-      inits = NULL,
       n.burnin = n_burnin,
-      jags.seed = seed
+      jags.seed = seed,
+      quiet = quiet,
+      DIC = TRUE
     )
+
+    # Merges user ... into defaults; user choices override defaults
+    final_args <- utils::modifyList(jags_args, list(...))
+
+    do.call(R2jags::jags, final_args)
   }
 
-  model_files <- c(
-    "underreported_poisson.jags",
-    "underreported_zip.jags",
-    "underreported_nb.jags"
-  )
-
-  model_params <- list(parameters_poisson, parameters_zip, parameters_nb)
-
-  # Parallelized model fitting
+  # --- 4. Execution ---
   if (parallel) {
-    model_outputs <- furrr::future_map2(model_files,
-      model_params,
-      fit_model,
-      .options = furrr::furrr_options(seed = seed)
+    model_outputs <- furrr::future_map2(
+      model_paths, model_params, fit_model,
+      .options = furrr::furrr_options(
+        seed = seed,
+        globals = TRUE,
+        packages = c("R2jags", "BUCM")
+      )
     )
   } else {
-    model_outputs <- purrr::map2(model_files, model_params, fit_model)
+    model_outputs <- purrr::map2(model_paths, model_params, fit_model)
   }
 
   model_names <- c("poisson", "zip", "negbinom")
-
   models <- rlang::set_names(model_outputs, model_names)
 
-  #---------------------metrics----------------------------------------
+  # --- 5. Metrics and Selection ---
   dics <- data.frame(
     model_names,
-    DIC = c(
-      models$poisson$BUGSoutput$DIC,
-      models$zip$BUGSoutput$DIC,
-      models$negbinom$BUGSoutput$DIC
-    )
+    DIC = purrr::map_dbl(models, ~ .x$BUGSoutput$DIC)
   )
   waics <- waic_comparison(models) # creates a df with waic for each model
   loos <- loo_comparison(models)

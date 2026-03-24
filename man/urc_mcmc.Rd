@@ -13,10 +13,12 @@ urc_mcmc(
   prior_pi = "dbeta(1, 1)",
   n_iter = 8000,
   n_chains = 2,
-  n_burnin = 8000/2,
+  n_burnin = floor(n_iter/2),
   seed = 123,
   inits = NULL,
-  parallel = FALSE
+  parallel = FALSE,
+  quiet = TRUE,
+  ...
 )
 }
 \arguments{
