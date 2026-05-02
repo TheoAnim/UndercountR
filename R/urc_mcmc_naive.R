@@ -1,4 +1,4 @@
-#' @title Fit Count Models Without Accounting for Underreported Using JAGS
+#' @title Fit Count Models Assuming no Underreporting
 #'
 #' @description
 #' Fits Poisson, zero-inflated Poisson (ZIP), and negative binomial (NB) models
