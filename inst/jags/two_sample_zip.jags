@@ -1,7 +1,7 @@
 model {
   # --- Observed data: Sample 1 ---
   for(i in 1:n1){
-    yobs1[i] ~ dpois(muy1[i])
+    yobs1[i] ~ dpois(mu_yobs1[i])
     mu_yobs1[i] <- lambda1 * p1 * is_zeroy1[i] + 0.0001
     is_zeroy1[i] ~ dbern(1 - pi1)
     loglik[i] <- logdensity.pois(yobs1[i], mu_yobs1[i])
@@ -9,7 +9,7 @@ model {
 
   # --- Observed data: Sample 2 ---
   for(i in 1:n2){
-    yobs2[i] ~ dpois(muy2[i])
+    yobs2[i] ~ dpois(mu_yobs2[i])
     mu_yobs2[i] <- lambda2 * p2 * is_zeroy2[i] + 0.0001
     is_zeroy2[i] ~ dbern(1 - pi2)
     loglik[n1 + i] <- logdensity.pois(yobs2[i], mu_yobs2[i])
