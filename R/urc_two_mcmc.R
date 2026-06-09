@@ -152,18 +152,18 @@ urc_two_mcmc <- function(x,
 
 
   # # --- DIC table ---
-  # dics <- tibble::tibble(
-  #   model_names = model_names,
-  #   DIC = c(
-  #     models$poisson$BUGSoutput$DIC,
-  #     models$zip$BUGSoutput$DIC,
-  #     models$negbinom$BUGSoutput$DIC
-  #   )
-  # )
+  dics <- tibble::tibble(
+    model_names = model_names,
+    DIC = c(
+      models$poisson$BUGSoutput$DIC,
+      models$zip$BUGSoutput$DIC,
+      models$negbinom$BUGSoutput$DIC
+    )
+  )
 
   list(
-    #  dic_best = dic_choice(dics, thresh = thresh),
-    # dics = dics,
+     dic_best = dic_choice(dics, thresh = thresh),
+    dics = dics,
     models = models
   )
 }
