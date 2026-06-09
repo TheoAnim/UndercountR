@@ -151,8 +151,8 @@ urc_two_mcmc <- function(x,
   models <- rlang::set_names(model_outputs, model_names)
 
 
-  # # --- DIC table ---
-  dics <- tibble::tibble(
+  # # --- dic table ---
+  dics <- data.frame(
     model_names = model_names,
     DIC = c(
       models$poisson$BUGSoutput$DIC,
