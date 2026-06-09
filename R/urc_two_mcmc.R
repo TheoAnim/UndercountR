@@ -75,7 +75,7 @@ urc_two_mcmc <- function(x,
   x$nv2 <- length(x$ystar2)
 
   # --- parameters for each model ---
-  parameters_poisson <- c("lambda1", "lambda2", "delta", "p1", "p2", "mu1", "mu2", "loglik1", "loglik2")
+  parameters_poisson <- c("lambda1", "lambda2", "delta", "p1", "p2", "mu1", "mu2", "loglik")
   parameters_zip <- c("lambda1", "lambda2", "delta", "p1", "p2", "pi1", "pi2", "loglik")
   parameters_nb <- c("lambda1", "lambda2", "delta", "p1", "p2", "c1", "c2", "loglik")
 
@@ -159,16 +159,16 @@ urc_two_mcmc <- function(x,
       models$negbinom$BUGSoutput$DIC
     )
   )
-  # waics <- waic_comparison(models) # creates a df with waic for each model
-  # loos <- loo_comparison(models)
+  waics <- waic_comparison(models) # creates a df with waic for each model
+  loos <- loo_comparison(models)
 
   list(
     models = models,
     dics = dics,
-    # waics = waics,
-    # loos = loos,
-    dic_best = dic_choice(dics, thresh = thresh)
-    # waic_best = waic_choice(waics, thresh = thresh),
-    # loo_best = loo_choice(loos, thresh = thresh)
+    waics = waics,
+    loos = loos,
+    dic_best = dic_choice(dics, thresh = thresh),
+    waic_best = waic_choice(waics, thresh = thresh),
+    loo_best = loo_choice(loos, thresh = thresh)
   )
 }
