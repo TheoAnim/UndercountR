@@ -159,16 +159,16 @@ urc_two_mcmc <- function(x,
       models$negbinom$BUGSoutput$DIC
     )
   )
-  waics <- waic_comparison(models) # creates a df with waic for each model
-  loos <- loo_comparison(models)
+  # waics <- waic_comparison(models) # creates a df with waic for each model
+  # loos <- loo_comparison(models)
 
   list(
     models = models,
     dics = dics,
-    waics = waics,
-    loos = loos,
-    dic_best = dic_choice(dics, thresh = thresh),
-    waic_best = waic_choice(waics, thresh = thresh),
-    loo_best = loo_choice(loos, thresh = thresh)
+    # waics = waics,
+    # loos = loos,
+    dic_best = dic_choice(dics, thresh = thresh)
+    # waic_best = waic_choice(waics, thresh = thresh),
+    # loo_best = loo_choice(loos, thresh = thresh)
   )
 }
