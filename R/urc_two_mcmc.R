@@ -150,60 +150,6 @@ urc_two_mcmc <- function(x,
   model_names <- c("poisson", "zip", "negbinom")
   models <- rlang::set_names(model_outputs, model_names)
 
-  # Manually compute delta for each model
-  # for (m in names(models)) {
-  #   # A. Update sims.list
-  #   sims <- models[[m]]$BUGSoutput$sims.list
-  #   delta_vec <- sims$lambda1 - sims$lambda2
-  #
-  #   models[[m]]$BUGSoutput$sims.list$delta <- delta_vec
-  #
-  #   existing_mat <- models[[m]]$BUGSoutput$sims.matrix
-  #   new_mat <- cbind(existing_mat, delta_vec)
-  #   colnames(new_mat) <- c(colnames(existing_mat), "delta")
-  #
-  #   # # Combine and save back to the model object
-  #   models[[m]]$BUGSoutput$sims.matrix <- new_mat
-  #
-  # }
-
-  # for (m in names(models)) {
-  #   ## Extract BUGS output
-  #   bugs <- models[[m]]$BUGSoutput
-  #
-  #   ## Compute delta
-  #   delta_vec <- bugs$sims.list$lambda1 - bugs$sims.list$lambda2
-  #
-  #   ## Update sims.list
-  #   bugs$sims.list$delta <- delta_vec
-  #
-  #   ## Update sims.matrix
-  #   new_mat <- cbind(bugs$sims.matrix, delta_vec)
-  #   colnames(new_mat) <- c(colnames(bugs$sims.matrix), "delta")
-  #   bugs$sims.matrix <- new_mat
-  #
-  #   ## Update sims.array
-  #   sims_array <- bugs$sims.array
-  #   n_iter <- dim(sims_array)[1]
-  #   n_chain <- dim(sims_array)[2]
-  #
-  #   ## Reshape delta to (iter × chain)
-  #   delta_array <- array(delta_vec,
-  #     dim = c(n_iter, n_chain, 1),
-  #     dimnames = list(
-  #       dimnames(sims_array)[[1]],
-  #       dimnames(sims_array)[[2]],
-  #       "delta"
-  #     )
-  #   )
-  #
-  #   ## Bind along parameter dimension
-  #   bugs$sims.array <- abind::abind(sims_array, delta_array, along = 3)
-  #
-  #   ## Save back
-  #   models[[m]]$BUGSoutput <- bugs
-  # }
-
 
   # # --- DIC table ---
   # dics <- tibble::tibble(
