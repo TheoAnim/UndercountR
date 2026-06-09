@@ -3,23 +3,28 @@ model {
   # --- Observed data: Sample 1 ---
   for(i in 1:n1){
     yobs1[i] ~ dnegbin(prob_y1, c1)
+    loglik[i] <- logdensity.negbin(yobs1[i], prob_y1, c1)
   }
 
   # --- Observed data: Sample 2 ---
   for(i in 1:n2){
     yobs2[i] ~ dnegbin(prob_y2, c2)
+    loglik[n1+i] <- logdensity.negbin(yobs2[i], prob_y2, c2)
   }
 
   # --- Validation set: Sample 1 ---
   for(v in 1:nv1){
     ystar1[v] ~ dnegbin(prob_ystar1, c1)
     yval1[v]  ~ dbinom(p1, ystar1[v])
+    loglik[(n1+n2)+v] <- logdensity.negbin(ystar1[v], prob_ystar1, c1) + logdensity.bin(yval1[v], p1, ystar1[v])
+
   }
 
   # --- Validation set: Sample 2 ---
   for(v in 1:nv2){
     ystar2[v] ~ dnegbin(prob_ystar2, c2)
     yval2[v]  ~ dbinom(p2, ystar2[v])
+    loglik[(n1+n2 + nv1)+v] <- logdensity.negbin(ystar2[v], prob_ystar2, c2) + logdensity.bin(yval2[v], p2, ystar2[v])
   }
 
   ##############################

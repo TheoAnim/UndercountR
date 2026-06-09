@@ -2,15 +2,17 @@ model {
   # --- Observed data: Sample 1 ---
   for(i in 1:n1){
     yobs1[i] ~ dpois(muy1[i])
-    muy1[i] <- lambda1 * p1 * is_zeroy1[i] + 0.0001
+    mu_yobs1[i] <- lambda1 * p1 * is_zeroy1[i] + 0.0001
     is_zeroy1[i] ~ dbern(1 - pi1)
+    loglik[i] <- logdensity.pois(yobs1[i], mu_yobs1[i])
   }
 
   # --- Observed data: Sample 2 ---
   for(i in 1:n2){
     yobs2[i] ~ dpois(muy2[i])
-    muy2[i] <- lambda2 * p2 * is_zeroy2[i] + 0.0001
+    mu_yobs2[i] <- lambda2 * p2 * is_zeroy2[i] + 0.0001
     is_zeroy2[i] ~ dbern(1 - pi2)
+    loglik[n1 + i] <- logdensity.pois(yobs2[i], mu_yobs2[i])
   }
 
   # --- Validation set: Sample 1 ---
@@ -19,6 +21,7 @@ model {
     yval1[v]  ~ dbinom(p1, ystar1[v])
     mu_ystar1[v] <- lambda1 * is_zero1[v] + 0.001
     is_zero1[v] ~ dbern(1 - pi1)
+    loglik[n1+n2+v] <- logdensity.pois(ystar1[v], mu_ystar1[v]) + logdensity.bin(yval1[v], p1, ystar1[v])
   }
 
   # --- Validation set: Sample 2 ---
@@ -27,6 +30,7 @@ model {
     yval2[v]  ~ dbinom(p2, ystar2[v])
     mu_ystar2[v] <- lambda2 * is_zero2[v] + 0.001
     is_zero2[v] ~ dbern(1 - pi2)
+    loglik[n1+n2+nv1+v] <- logdensity.pois(ystar2[v], mu_ystar2[v]) + logdensity.bin(yval2[v], p2, ystar2[v])
   }
 
   # --- Hyperpriors ---
