@@ -124,8 +124,7 @@ urc_two_mcmc <- function(x,
       DIC = TRUE,
       quiet = TRUE,
       RNGname = "Wichmann-Hill",
-      jags.seed = seed # ,
-      # working.directory = getwd()
+      jags.seed = seed
     )
   }
 
