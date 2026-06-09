@@ -2,23 +2,23 @@ model {
   # Observed counts
   for(i in 1:n1){
     yobs1[i] ~ dpois(mu1)
-    loglik1[i] <- logdensity.pois(yobs1[i], mu1)
+    loglik[i] <- logdensity.pois(yobs1[i], mu1)
   }
   for(i in 1:n2){
     yobs2[i] ~ dpois(mu2)
-    loglik2[n1 + i] <- logdensity.pois(yobs2[i], mu2)
+    loglik[n1 + i] <- logdensity.pois(yobs2[i], mu2)
   }
 
   # Validation sets
   for(v in 1:nv1){
     ystar1[v] ~ dpois(lambda1)
     yval1[v] ~ dbinom(p1, ystar1[v])
-    loglik1[n1 + n2 +v] <- logdensity.pois(ystar1[v], lambda1) + logdensity.bin(yval1[v], p1, ystar1[v])
+    loglik[n1 + n2 +v] <- logdensity.pois(ystar1[v], lambda1) + logdensity.bin(yval1[v], p1, ystar1[v])
   }
   for(v in 1:nv2){
     ystar2[v] ~ dpois(lambda2)
     yval2[v] ~ dbinom(p2, ystar2[v])
-    loglik2[n1+n2+nv1] <- logdensity.pois(ystar2[v], lambda2) + logdensity.bin(yval2[v], p2, ystar2[v])
+    loglik[n1+n2+nv1] <- logdensity.pois(ystar2[v], lambda2) + logdensity.bin(yval2[v], p2, ystar2[v])
 
   }
 
