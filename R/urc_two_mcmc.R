@@ -75,7 +75,7 @@ urc_two_mcmc <- function(x,
   x$nv2 <- length(x$ystar2)
 
   # --- parameters for each model ---
-  parameters_poisson <- c("lambda1", "lambda2", "delta", "p1", "p2", "mu1", "mu2", "loglik")
+  parameters_poisson <- c("lambda1", "lambda2", "delta", "p1", "p2", "mu1", "mu2", "loglik1", "loglik2")
   parameters_zip <- c("lambda1", "lambda2", "delta", "p1", "p2", "pi1", "pi2", "loglik")
   parameters_nb <- c("lambda1", "lambda2", "delta", "p1", "p2", "c1", "c2", "loglik")
 
