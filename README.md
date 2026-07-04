@@ -30,9 +30,11 @@ Compatible with other packages for generating:
 Install the development version from GitHub.
 
 ```r
-# install.packages("pak")
+# Install pak if not already installed
+install.packages("pak")
 
-pak::install_github("TheoAnim/BUCM")
+# Install BUCM from GitHub
+pak::pkg_install("TheoAnim/BUCM")
 ```
 
 ---
