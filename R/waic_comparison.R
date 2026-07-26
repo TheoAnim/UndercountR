@@ -10,7 +10,6 @@
 #'
 #' @export
 waic_comparison <- function(models, thresh) {
-  # models <- jagsoutput$models
   model_names <- c("poisson", "zip", "negbinom")
   waic_values <- furrr::future_map(models, \(x) x$BUGSoutput$sims.list$loglik) |>
     furrr::future_map(loo::waic) |>

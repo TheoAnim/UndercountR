@@ -67,6 +67,7 @@ install.packages(c(
 library(BUCM)
 library(bizicount)
 library(MCMCVis)
+library(loo)
 
 set.seed(123)
 
@@ -182,7 +183,7 @@ BUCM/
 
 If you use BUCM in published research, please cite:
 
-Bediako, T. A., Roberman, J. L., Barth, J., & Stamey, J. D. (2026). *Bayesian modeling of one and two-sample count data with underreporting.*
+Anim Bediako, T., Roberman, J. L., Barth, J., & Stamey, J. D. (2026). *Bayesian modeling of one and two-sample count data with underreporting.*
 
 (Citation will be updated after publication.)
 
