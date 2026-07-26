@@ -1,6 +1,6 @@
-#' Compare Models Using Loo
+#' Compare Models Using Paretho-Smoothed Importance Sampling Leave-One-Out
 #'
-#' Calculates the Widely Applicable Information Criterion (loo) for multiple
+#' Calculates the PSIS-LOO for multiple
 #' Bayesian models fit using JAGS and returns a comparison table.
 #'
 #' @param models A list containing JAGS `models` for Poisson, ZIP and Negative Binomial
