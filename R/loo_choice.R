@@ -5,12 +5,12 @@ loo_choice <- function(df, thresh) {
   }
   min_loo <- min(df$loo)
 
-  # models within 2 units of the min loo
+  # models within thresh units of the min loo
   candidate_models <- df$model_names[df$loo - min_loo <= thresh]
-  # If there are competing models, choose based on parsimony
+  # If there are competing models, choose based on parsimony(Poisson)
   if (length(candidate_models) > 1 &
     "poisson" %in% candidate_models) {
-    # If poisson is among candidates, choose it (most parsimonious)
+    # If Poisson is among candidates, choose it (most parsimonious)
     "poisson"
   }
   # If both zip and negbinom are candidates (equally complex), return the one with lower loo
