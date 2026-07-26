@@ -2,7 +2,7 @@
 
 **BUCM** (Bayesian Underreported Count Models) is an R package for Bayesian analysis of underreported count data. The package provides a unified framework for fitting one-sample and two-sample count models when observed counts are subject to underreporting. Parameter estimation is performed using Markov chain Monte Carlo (MCMC) methods implemented through JAGS.
 
-The package is designed for researchers and practitioners working with count data in epidemiology, public health, ecology, pharmacovigilance, clinical trials, manufacturing, and other fields where incomplete underreporting is common.
+The package is designed for researchers and practitioners working with count data in epidemiology, public health, ecology, pharmacovigilance, clinical trials, manufacturing, and other fields where underreporting is common.
 
 ---
 
@@ -66,7 +66,7 @@ install.packages(c(
 ```r
 library(BUCM)
 library(bizicount)
-library(MCVis)
+library(MCMCVis)
 
 set.seed(123)
 
@@ -114,22 +114,37 @@ fit <- urc_mcmc(
 )
 ```
 
-### View model comparison
+
+### Model Diagnostics
+
+Support call to bayesplot package
 
 ```r
-fit$DICs
+fit$models$poisson$BUGSoutput$sims.array |> 
+  bayesplot::mcmc_trace(pars = c("lambda", "p"))
+```
+
+
+### View model comparison
+
+Models comparison either by DIC, WAIC or PSIS-LOO
+
+```r
+fit$dics
 ```
 
 ### Selected model
 
+Returns the plausible parsimonious model or the model with the smallest comparison metric.
 ```r
-fit$best_model
+fit$dic_best  
 ```
 
 ### Posterior summary
 
 ```r
-MCMCsummary(fit$models[[fit$best_model]])
+fit$models$poisson |> 
+  MCMCvis::MCMCsummary(params = c("p", "lambda", "mu"))
 ```
 
 ---
