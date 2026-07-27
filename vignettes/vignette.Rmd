@@ -27,7 +27,7 @@ bayesplot::color_scheme_set("viridis")
 
 The **BUCM** packages provides an interface to fit Bayesian model to count data. The package is in it's simplest form without allowing for covariates(coming soon).
 
-Three different distributions of count data are supported. However, **BUCM** also includes model selection components that users can use to determine plausible underlying distribution for the count data. To the best of our knowledge, other MCMC diagnostic tools such as bayesplot.
+Three different distributions(Poisson, ZIP and Negative Binomial) of count data are supported. **BUCM** also includes model selection components that users can use to determine plausible underlying distribution for the count data. To the best of our knowledge, other MCMC diagnostic tools such as bayesplot.
 
 ## Installation
 
@@ -40,8 +40,7 @@ remotes::install_github("TheoAnim/BUCM")
 ## Libraries
 ```{r setup, warning = FALSE, message = FALSE}
 library(BUCM)
-library(tidyverse)
-library(loo)
+library(ggplot2)
 ```
 
 ## Illustrative Example
@@ -120,9 +119,38 @@ bayes_count_models$models$poisson |>
 
 ### Model Selection
 
+(a) Return values for each criterion for each model
 ```{r}
-bayes_count_models$models$poisson |> 
-  MCMCvis::MCMCsummary(params = c("lambda", "p"))
+# using DIC for model selection
+bayes_count_models$dics |> 
+  kableExtra::kable(caption = "DIC Comparison")
+```
+
+```{r}
+# using WAIC for model selection
+bayes_count_models$waics |> 
+  kableExtra::kable(caption = "WAIC Comparison")
+```
+
+```{r}
+# using PSIS-LOO for model selection
+bayes_count_models$loos |> 
+  kableExtra::kable(caption = "PSIS-LOO Comparison")
+```
+
+
+(b) Show plausible model selected as being parsimonious or having the smallest criterion value
+
+```{r}
+data.frame(
+  Model = c("DIC", "WAIC", "LOO"),
+  "Best Selected" = c(
+    bayes_count_models$dic_best,
+    bayes_count_models$waic_best,
+    bayes_count_models$loo_best
+  )
+) |>
+  kableExtra::kable(caption = "Plausible model by each selection criterion")
 ```
 
 

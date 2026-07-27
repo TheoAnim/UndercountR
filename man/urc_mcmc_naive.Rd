@@ -2,7 +2,7 @@
 % Please edit documentation in R/urc_mcmc_naive.R
 \name{urc_mcmc_naive}
 \alias{urc_mcmc_naive}
-\title{Fit Count Models Without Accounting for Underreported Using JAGS}
+\title{Fit Count Models Assuming no Underreporting}
 \usage{
 urc_mcmc_naive(
   x,

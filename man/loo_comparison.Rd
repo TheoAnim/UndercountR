@@ -2,7 +2,7 @@
 % Please edit documentation in R/loo_comparison.R
 \name{loo_comparison}
 \alias{loo_comparison}
-\title{Compare Models Using Loo}
+\title{Compare Models Using Paretho-Smoothed Importance Sampling Leave-One-Out}
 \usage{
 loo_comparison(models, thresh)
 }
@@ -14,6 +14,6 @@ Poisson, ZIP (zero-inflated Poisson), and negative binomial models.}
 \item{thresh}{Numeric threshold for model comparison (default = 2).}
 }
 \description{
-Calculates the Widely Applicable Information Criterion (loo) for multiple
+Calculates the PSIS-LOO for multiple
 Bayesian models fit using JAGS and returns a comparison table.
 }
