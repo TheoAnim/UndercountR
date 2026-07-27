@@ -35,11 +35,15 @@
 #'   If `FALSE`, the models are fitted sequentially.
 #' @return A named list with the following components:
 #' \describe{
-#'   \item{models}{A list of fitted model objects (class \code{rjags}).}
-#'   \item{DICs}{A named numeric vector of DIC values for each model.}
-#'   \item{best_model}{The model with the lowest DIC.}
+#'   \item{models}{A list of the three fitted model objects (class \code{rjags}).}
+#'   \item{dics}{A named numeric vector of DIC values for each model.}
+#'   \item{waics}{A named numeric vector of WAIC values for each model.}
+#'   \item{loos}{A named numeric vector of LOO values for each model.}
+#'   \item{dic_best}{The parsimonous or the model with the lowest DIC.}
+#'   \item{waic_best}{The parsimonous or the model with the lowest WAIC}
+#'   \item{loo_best}{The parsimonous or the model with the lowest PSIS-LOO}
 #' }
-#'
+#'\code{vignette("vignette", package = "BUCM")}.
 #' @export
 
 urc_mcmc <- function(x,

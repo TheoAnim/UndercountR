@@ -22,7 +22,7 @@ The package is designed for researchers and practitioners working with count dat
 Compatible with other packages for generating:
 
 * Posterior summaries and credible intervals
-* Trace plots and posterior density plots
+* Trace plots, posterior density plots and other diagnostics
 ---
 
 ## Installation
