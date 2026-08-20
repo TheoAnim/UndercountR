@@ -7,24 +7,45 @@
 urc_density(model, parameters = NULL, deviance = FALSE)
 }
 \arguments{
-\item{model}{A model object of class \code{"rjags"} returned by \code{UndercountR::urc_mcmc()}.}
+\item{model}{A fitted JAGS model object containing posterior samples.}
 
-\item{parameters}{Optional character vector of parameter names to include in the plot.
-If \code{NULL} (default), all parameters are plotted except deviance}
+\item{parameters}{Optional character vector specifying the parameters to plot.
+For indexed parameters, the base parameter name can be supplied. For example,
+\code{parameters = "theta"} selects \code{theta[1]}, \code{theta[2]}, etc.
+If \code{NULL}, all available parameters are plotted except \code{loglik}
+and, by default, \code{deviance}.}
 
-\item{deviance}{Logical specifying whether to include plot of posterior deviance. Default is \code{deviance = FALSE}.}
+\item{deviance}{Logical; should posterior deviance be included?
+Defaults to \code{FALSE}.}
 }
 \value{
-A \code{ggplot} object showing posterior densities for each parameter.
+A \code{ggplot} object showing posterior densities.
 }
 \description{
-Creates a density plot for each parameter in the BUGS MCMC output.
+Creates posterior density plots from a JAGS MCMC model.
 }
 \examples{
 \dontrun{
-output <- urc_mcmc(data = mydata)
+output <- urc_mcmc(x = mydata)
 
-# Plot posterior densities for the Poisson model
+# Plot all parameters
 urc_density(output$models$poisson)
+
+# Plot selected parameters
+urc_density(
+  output$models$zip,
+  parameters = c("lambda", "pi")
+)
+
+# Indexed parameters can be selected using their base name
+urc_density(
+  output$models$example,
+  parameters = "theta"
+)
+
+# Further customize the returned ggplot object
+urc_density(output$models$poisson) +
+  ggplot2::theme_minimal() +
+  ggplot2::labs(title = "Posterior Densities")
 }
 }
