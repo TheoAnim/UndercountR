@@ -244,13 +244,12 @@ urc_mcmc_naive <- function(
   # -------------------------------------------------------------------
 
   dics <- data.frame(
-    model = model_names,
+    model_names = model_names,
     DIC = vapply(
       models,
       function(model) model$BUGSoutput$DIC,
       numeric(1)
-    )
-  )
+    ))
 
   waics <- waic_comparison(models)
 
