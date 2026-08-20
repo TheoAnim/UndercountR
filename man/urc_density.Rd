@@ -4,16 +4,22 @@
 \alias{urc_density}
 \title{Plot Posterior Densities}
 \usage{
-urc_density(model, parameters = NULL, deviance = FALSE)
+urc_density(model, parameters = NULL, exclude = NULL, deviance = FALSE)
 }
 \arguments{
 \item{model}{A fitted JAGS model object containing posterior samples.}
 
 \item{parameters}{Optional character vector specifying the parameters to plot.
-For indexed parameters, the base parameter name can be supplied. For example,
-\code{parameters = "theta"} selects \code{theta[1]}, \code{theta[2]}, etc.
 If \code{NULL}, all available parameters are plotted except \code{loglik}
-and, by default, \code{deviance}.}
+and, by default, \code{deviance}. Parameters can be specified by their
+exact name (e.g., \code{"lambda[1]"}) or by their base name
+(e.g., \code{"lambda"}), which selects all indexed parameters such as
+\code{"lambda[1]"}, \code{"lambda[2]"}, etc.}
+
+\item{exclude}{Optional character vector specifying parameters to exclude
+from the plot. Exact parameter names can be used (e.g., \code{"lambda[1]"})
+or base parameter names (e.g., \code{"lambda"}) to exclude all indexed
+parameters.}
 
 \item{deviance}{Logical; should posterior deviance be included?
 Defaults to \code{FALSE}.}
@@ -37,13 +43,43 @@ urc_density(
   parameters = c("lambda", "pi")
 )
 
-# Indexed parameters can be selected using their base name
+# Plot a specific indexed parameter
 urc_density(
-  output$models$example,
-  parameters = "theta"
+  output$models$zip,
+  parameters = "lambda[1]"
 )
 
-# Further customize the returned ggplot object
+# Plot selected indexed parameters
+urc_density(
+  output$models$zip,
+  parameters = c("lambda[1]", "lambda[3]")
+)
+
+# Plot all lambda parameters
+urc_density(
+  output$models$zip,
+  parameters = "lambda"
+)
+
+# Exclude a specific indexed parameter
+urc_density(
+  output$models$zip,
+  exclude = "lambda[1]"
+)
+
+# Exclude all lambda parameters
+urc_density(
+  output$models$zip,
+  exclude = "lambda"
+)
+
+# Include posterior deviance
+urc_density(
+  output$models$poisson,
+  deviance = TRUE
+)
+
+# Customize the returned ggplot object
 urc_density(output$models$poisson) +
   ggplot2::theme_minimal() +
   ggplot2::labs(title = "Posterior Densities")

@@ -6,10 +6,16 @@
 #' @param model A fitted JAGS model object containing posterior samples.
 #'
 #' @param parameters Optional character vector specifying the parameters to plot.
-#'   For indexed parameters, the base parameter name can be supplied. For example,
-#'   \code{parameters = "theta"} selects \code{theta[1]}, \code{theta[2]}, etc.
 #'   If \code{NULL}, all available parameters are plotted except \code{loglik}
-#'   and, by default, \code{deviance}.
+#'   and, by default, \code{deviance}. Parameters can be specified by their
+#'   exact name (e.g., \code{"lambda[1]"}) or by their base name
+#'   (e.g., \code{"lambda"}), which selects all indexed parameters such as
+#'   \code{"lambda[1]"}, \code{"lambda[2]"}, etc.
+#'
+#' @param exclude Optional character vector specifying parameters to exclude
+#'   from the plot. Exact parameter names can be used (e.g., \code{"lambda[1]"})
+#'   or base parameter names (e.g., \code{"lambda"}) to exclude all indexed
+#'   parameters.
 #'
 #' @param deviance Logical; should posterior deviance be included?
 #'   Defaults to \code{FALSE}.
@@ -31,13 +37,43 @@
 #'   parameters = c("lambda", "pi")
 #' )
 #'
-#' # Indexed parameters can be selected using their base name
+#' # Plot a specific indexed parameter
 #' urc_density(
-#'   output$models$example,
-#'   parameters = "theta"
+#'   output$models$zip,
+#'   parameters = "lambda[1]"
 #' )
 #'
-#' # Further customize the returned ggplot object
+#' # Plot selected indexed parameters
+#' urc_density(
+#'   output$models$zip,
+#'   parameters = c("lambda[1]", "lambda[3]")
+#' )
+#'
+#' # Plot all lambda parameters
+#' urc_density(
+#'   output$models$zip,
+#'   parameters = "lambda"
+#' )
+#'
+#' # Exclude a specific indexed parameter
+#' urc_density(
+#'   output$models$zip,
+#'   exclude = "lambda[1]"
+#' )
+#'
+#' # Exclude all lambda parameters
+#' urc_density(
+#'   output$models$zip,
+#'   exclude = "lambda"
+#' )
+#'
+#' # Include posterior deviance
+#' urc_density(
+#'   output$models$poisson,
+#'   deviance = TRUE
+#' )
+#'
+#' # Customize the returned ggplot object
 #' urc_density(output$models$poisson) +
 #'   ggplot2::theme_minimal() +
 #'   ggplot2::labs(title = "Posterior Densities")
@@ -45,10 +81,14 @@
 urc_density <- function(
     model,
     parameters = NULL,
+    exclude = NULL,
     deviance = FALSE
 ) {
 
+  # -------------------------------------------------------------------
   # Check model object
+  # -------------------------------------------------------------------
+
   if (is.null(model$BUGSoutput$sims.matrix)) {
     stop(
       "`model` does not contain a valid BUGS posterior sample matrix.",
@@ -56,10 +96,16 @@ urc_density <- function(
     )
   }
 
+  # -------------------------------------------------------------------
   # Extract posterior samples
+  # -------------------------------------------------------------------
+
   samples <- as.data.frame(model$BUGSoutput$sims.matrix)
 
-  # Convert to long format and extract base parameter names
+  # -------------------------------------------------------------------
+  # Convert to long format
+  # -------------------------------------------------------------------
+
   samples <- samples |>
     tibble::rownames_to_column(var = ".iter") |>
     tidyr::pivot_longer(
@@ -71,17 +117,26 @@ urc_density <- function(
       base_parameter = sub("\\[.*$", "", parameter)
     )
 
-  # Remove log-likelihood values used for WAIC and LOO
+  # -------------------------------------------------------------------
+  # Remove log-likelihood
+  # -------------------------------------------------------------------
+
   samples <- samples |>
     dplyr::filter(base_parameter != "loglik")
 
+  # -------------------------------------------------------------------
   # Remove deviance unless requested
+  # -------------------------------------------------------------------
+
   if (!deviance) {
     samples <- samples |>
       dplyr::filter(base_parameter != "deviance")
   }
 
+  # -------------------------------------------------------------------
   # Select requested parameters
+  # -------------------------------------------------------------------
+
   if (!is.null(parameters)) {
 
     if (!is.character(parameters)) {
@@ -91,11 +146,20 @@ urc_density <- function(
       )
     }
 
-    available_parameters <- unique(samples$base_parameter)
+    available_parameters <- unique(samples$parameter)
+    available_base_parameters <- unique(samples$base_parameter)
+
+    # A parameter is valid if it is either:
+    # 1. an exact parameter name, e.g. lambda[1], or
+    # 2. a base parameter name, e.g. lambda
+    valid_parameters <- parameters[
+      parameters %in% available_parameters |
+        parameters %in% available_base_parameters
+    ]
 
     missing_parameters <- setdiff(
       parameters,
-      available_parameters
+      valid_parameters
     )
 
     if (length(missing_parameters) > 0) {
@@ -107,10 +171,38 @@ urc_density <- function(
     }
 
     samples <- samples |>
-      dplyr::filter(base_parameter %in% parameters)
+      dplyr::filter(
+        parameter %in% valid_parameters |
+          base_parameter %in% valid_parameters
+      )
   }
 
-  # Stop if no parameters remain after filtering
+  # -------------------------------------------------------------------
+  # Exclude user-specified parameters
+  # -------------------------------------------------------------------
+
+  if (!is.null(exclude)) {
+
+    if (!is.character(exclude)) {
+      stop(
+        "`exclude` must be a character vector or NULL.",
+        call. = FALSE
+      )
+    }
+
+    samples <- samples |>
+      dplyr::filter(
+        !(
+          parameter %in% exclude |
+            base_parameter %in% exclude
+        )
+      )
+  }
+
+  # -------------------------------------------------------------------
+  # Check that parameters remain
+  # -------------------------------------------------------------------
+
   if (nrow(samples) == 0) {
     stop(
       "No posterior samples available for the selected parameters.",
@@ -118,7 +210,10 @@ urc_density <- function(
     )
   }
 
-  # Create and return plot
+  # -------------------------------------------------------------------
+  # Create plot
+  # -------------------------------------------------------------------
+
   ggplot2::ggplot(
     samples,
     ggplot2::aes(x = value)
