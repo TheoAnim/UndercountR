@@ -1,0 +1,32 @@
+model {
+
+  # --- Observed data: Sample 1 ---
+  for(i in 1:n1){
+    yobs1[i] ~ dnegbin(prob_y1, c1)
+    loglik[i] <- logdensity.negbin(yobs1[i], prob_y1, c1)
+  }
+
+  # --- Observed data: Sample 2 ---
+  for(i in 1:n2){
+    yobs2[i] ~ dnegbin(prob_y2, c2)
+    loglik[n1 + i] <- logdensity.negbin(yobs2[i], prob_y2, c2)
+  }
+
+  ##############################
+  ########## Priors ############
+  ##############################
+
+  lambda1 ~ prior_lambda1
+  lambda2 ~ prior_lambda2
+
+  c1 ~ prior_c1
+  c2 ~ prior_c2
+
+  # --- Derived probabilities for NB ---
+  prob_y1 <- c1 / (c1 + lambda1)
+  prob_y2 <- c2 / (c2 + lambda2)
+
+  # --- Rate ratio ---
+  rate_ratio <- lambda1 / lambda2
+
+}

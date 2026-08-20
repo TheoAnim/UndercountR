@@ -42,7 +42,7 @@ model {
   prob_ystar1  <- c1 / (c1 + lambda1)
   prob_y2      <- c2 / (c2 + lambda2 * p2)
   prob_ystar2  <- c2 / (c2 + lambda2)
-  ## difference in expected count
-  delta <- lambda1 - lambda2
+  ## ratio
+  rate_ratio <- lambda1/lambda2
 
 }

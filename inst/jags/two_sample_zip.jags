@@ -41,7 +41,7 @@ model {
   pi1     ~ prior_pi1
   pi2     ~ prior_pi2
 
-  #difference in expected count
-  delta <- lambda1 - lambda2
+  # ratio
+  rate_ratio <- lambda1/lambda2
 
 }

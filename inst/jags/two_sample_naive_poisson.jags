@@ -1,0 +1,25 @@
+model {
+
+  # --- Observed data: Sample 1 ---
+  for(i in 1:n1){
+    yobs1[i] ~ dpois(lambda1)
+    loglik[i] <- logdensity.pois(yobs1[i], lambda1)
+  }
+
+  # --- Observed data: Sample 2 ---
+  for(i in 1:n2){
+    yobs2[i] ~ dpois(lambda2)
+    loglik[n1 + i] <- logdensity.pois(yobs2[i], lambda2)
+  }
+
+  ##############################
+  ########## Priors ############
+  ##############################
+
+  lambda1 ~ prior_lambda1
+  lambda2 ~ prior_lambda2
+
+  # --- Rate ratio ---
+  rate_ratio <- lambda1 / lambda2
+
+}

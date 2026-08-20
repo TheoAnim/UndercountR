@@ -1,0 +1,34 @@
+model {
+
+  # --- Observed data: Sample 1 ---
+  for(i in 1:n1){
+    yobs1[i] ~ dpois(mu1[i])
+    mu1[i] <- lambda1 * is_zero1[i] + 0.0001
+    is_zero1[i] ~ dbern(1 - pi1)
+
+    loglik[i] <- logdensity.pois(yobs1[i], mu1[i])
+  }
+
+  # --- Observed data: Sample 2 ---
+  for(i in 1:n2){
+    yobs2[i] ~ dpois(mu2[i])
+    mu2[i] <- lambda2 * is_zero2[i] + 0.0001
+    is_zero2[i] ~ dbern(1 - pi2)
+
+    loglik[n1 + i] <- logdensity.pois(yobs2[i], mu2[i])
+  }
+
+  ##############################
+  ########## Priors ############
+  ##############################
+
+  lambda1 ~ prior_lambda1
+  lambda2 ~ prior_lambda2
+
+  pi1 ~ prior_pi1
+  pi2 ~ prior_pi2
+
+  # --- Rate ratio ---
+  rate_ratio <- lambda1 / lambda2
+
+}
