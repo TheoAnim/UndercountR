@@ -18,8 +18,6 @@ urcdata_gen <- function(lambda, p, pi = 0, c = 1, nobs = 100, nv = 0, fun) {
   }
   list(
     yval = yv,
-    # n_obs = nobs,
-    # nv = nv,
     ystar = ystar,
     yobs = y
   )

@@ -47,16 +47,6 @@ Install JAGS from:
 
 https://mcmc-jags.sourceforge.io/
 
-After installation, install the required R packages.
-
-```r
-install.packages(c(
-  "R2jags",
-  "coda",
-  "tidyverse",
-  "purrr"
-))
-```
 
 ---
 ## Quick Example

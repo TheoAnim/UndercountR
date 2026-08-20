@@ -39,114 +39,227 @@
 #' }
 #'
 #' @export
+urc_mcmc_naive <- function(
+    x,
+    thresh = 2,
+    prior_lambda = "dgamma(0.1, 0.1)",
+    prior_c = "dgamma(0.1, 0.1)",
+    prior_pi = "dbeta(1, 1)",
+    n_iter = 8000,
+    n_chains = 2,
+    n_burnin = n_iter / 2,
+    seed = 123,
+    inits = NULL,
+    parallel = FALSE,
+    workers = NULL
+) {
 
-urc_mcmc_naive <- function(x,
-                     thresh = 2,
-                     prior_lambda = "dgamma(0.1, 0.1)",
-                     prior_c = "dgamma(0.1, 0.1)",
-                     prior_pi = "dbeta(1, 1)",
-                     n_iter = 8e3,
-                     n_chains = 2,
-                     n_burnin = 8e3 / 2,
-                     seed = 123,
-                     inits = NULL,
-                     parallel = FALSE) {
-  # setup to parallize
-  if (.Platform$OS.type == "windows") {
-    future::plan(future::multisession, workers = 3)
-  } else {
-    future::plan(future::multicore, workers = 3)
+  # -------------------------------------------------------------------
+  # Input validation
+  # -------------------------------------------------------------------
+
+  if (!is.list(x) || !"yobs" %in% names(x)) {
+    stop(
+      "`x` must be a named list containing `yobs`.",
+      call. = FALSE
+    )
   }
 
-  if (!is.list(x) ||
-      !all(c("yobs") %in% names(x))) {
-    stop("Argument 'x' must be a named list containing 'yobs'")
+  if (!is.numeric(x$yobs) || length(x$yobs) == 0) {
+    stop(
+      "`x$yobs` must be a non-empty numeric vector.",
+      call. = FALSE
+    )
   }
 
-  # define parameters for naive models
-  parameters_poisson <- c("lambda", "loglik")
-  parameters_zip <- c("lambda", "pi", "loglik")
-  parameters_nb <- c("lambda", "c", "loglik")
+  if (n_iter <= 0 || n_chains <= 0 || n_burnin < 0 ||
+      n_burnin >= n_iter) {
+    stop(
+      "`n_iter`, `n_chains`, and `n_burnin` must have valid values.",
+      call. = FALSE
+    )
+  }
 
+  # -------------------------------------------------------------------
+  # Model specifications
+  # -------------------------------------------------------------------
 
-  # function to fit each model
-  fit_model <- function(file_name, parameters) {
+  model_specs <- list(
+    poisson = list(
+      file = "naive_poisson.jags",
+      parameters = c("lambda", "loglik")
+    ),
+    zip = list(
+      file = "naive_zip.jags",
+      parameters = c("lambda", "pi", "loglik")
+    ),
+    negbinom = list(
+      file = "naive_nb.jags",
+      parameters = c("lambda", "c", "loglik")
+    )
+  )
+
+  # -------------------------------------------------------------------
+  # Set up parallel processing only when requested
+  # -------------------------------------------------------------------
+
+  if (parallel) {
+
+    old_plan <- future::plan()
+
+    on.exit(
+      future::plan(old_plan),
+      add = TRUE
+    )
+
+    if (is.null(workers)) {
+      workers <- min(
+        length(model_specs),
+        max(1, future::availableCores() - 1)
+      )
+    }
+
+    if (.Platform$OS.type == "windows") {
+      future::plan(
+        future::multisession,
+        workers = workers
+      )
+    } else {
+      future::plan(
+        future::multicore,
+        workers = workers
+      )
+    }
+  }
+
+  # -------------------------------------------------------------------
+  # Fit a single model
+  # -------------------------------------------------------------------
+
+  fit_model <- function(model_name, spec, model_seed) {
+
     data <- x
     data$n_obs <- length(data$yobs)
-    file_path <- system.file(file.path("jags", file_name),
-                             package = "BUCM",
-                             mustWork = TRUE
-    )
-    lines <- readLines(file_path)
 
-    #user-specified priors
-    if (grepl("nb", file_name)) {
-      lines <- gsub(
-        pattern = "prior_c",
-        replacement = prior_c,
-        x = lines,
+    model_path <- system.file(
+      "jags",
+      spec$file,
+      package = "BUCM",
+      mustWork = TRUE
+    )
+
+    model_code <- readLines(model_path)
+
+    # Replace user-specified priors
+    model_code <- gsub(
+      "prior_lambda",
+      prior_lambda,
+      model_code,
+      fixed = TRUE
+    )
+
+    if (model_name == "zip") {
+      model_code <- gsub(
+        "prior_pi",
+        prior_pi,
+        model_code,
         fixed = TRUE
       )
-    } else if (grepl("zip", file_name)) {
-      lines <- gsub("prior_pi", prior_pi, lines, fixed = TRUE)
     }
-    lines <- gsub("prior_lambda", prior_lambda, lines, fixed = TRUE)
 
-    temp <- tempfile()
-    on.exit(unlink(temp, force = TRUE))
-    writeLines(lines, temp)
+    if (model_name == "negbinom") {
+      model_code <- gsub(
+        "prior_c",
+        prior_c,
+        model_code,
+        fixed = TRUE
+      )
+    }
 
-    model <- R2jags::jags(
-      model.file = temp,
+    # Write modified JAGS model to a temporary file
+    temp_model <- tempfile(fileext = ".jags")
+
+    on.exit(
+      unlink(temp_model, force = TRUE),
+      add = TRUE
+    )
+
+    writeLines(model_code, temp_model)
+
+    R2jags::jags(
+      model.file = temp_model,
       data = data,
-      parameters.to.save = parameters,
+      parameters.to.save = spec$parameters,
       n.chains = n_chains,
       n.iter = n_iter,
-      quiet = TRUE,
-      DIC = TRUE,
-      RNGname = "Wichmann-Hill",
-      inits = NULL,
       n.burnin = n_burnin,
-      jags.seed = seed
+      inits = inits,
+      DIC = TRUE,
+      quiet = TRUE,
+      RNGname = "Wichmann-Hill",
+      jags.seed = model_seed
     )
   }
 
-  model_files <- c(
-    "naive_poisson.jags",
-    "naive_zip.jags",
-    "naive_nb.jags"
-  )
+  # -------------------------------------------------------------------
+  # Fit all models
+  # -------------------------------------------------------------------
 
-  model_params <- list(parameters_poisson, parameters_zip, parameters_nb)
+  model_names <- names(model_specs)
 
-  # Parallelized model fitting
+  model_seeds <- seed + seq_along(model_names) - 1
+
   if (parallel) {
-    model_outputs <- furrr::future_map2(model_files,
-                                        model_params,
-                                        fit_model,
-                                        .options = furrr::furrr_options(seed = seed)
+
+    models <- furrr::future_map2(
+      model_names,
+      model_seeds,
+      ~ fit_model(
+        model_name = .x,
+        spec = model_specs[[.x]],
+        model_seed = .y
+      ),
+      .options = furrr::furrr_options(
+        seed = seed
+      )
     )
+
   } else {
-    model_outputs <- purrr::map2(model_files, model_params, fit_model)
+
+    models <- purrr::map2(
+      model_names,
+      model_seeds,
+      ~ fit_model(
+        model_name = .x,
+        spec = model_specs[[.x]],
+        model_seed = .y
+      )
+    )
   }
 
-  model_names <- c("poisson", "zip", "negbinom")
+  names(models) <- model_names
 
-  models <- rlang::set_names(model_outputs, model_names)
+  # -------------------------------------------------------------------
+  # Model comparison metrics
+  # -------------------------------------------------------------------
 
-  #---------------------metrics----------------------------------------
   dics <- data.frame(
-    model_names,
-    DIC = c(
-      models$poisson$BUGSoutput$DIC,
-      models$zip$BUGSoutput$DIC,
-      models$negbinom$BUGSoutput$DIC
+    model = model_names,
+    DIC = vapply(
+      models,
+      function(model) model$BUGSoutput$DIC,
+      numeric(1)
     )
   )
-  waics <- waic_comparison(models) # creates a df with waic for each model
+
+  waics <- waic_comparison(models)
+
   loos <- loo_comparison(models)
 
-  # named list of jags model and metrics
+  # -------------------------------------------------------------------
+  # Return results
+  # -------------------------------------------------------------------
+
   list(
     models = models,
     dics = dics,
