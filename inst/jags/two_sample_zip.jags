@@ -42,6 +42,6 @@ model {
   pi2     ~ prior_pi2
 
   # ratio
-  rate_ratio <- lambda1/lambda2
+  rates_ratio <- lambda1/lambda2
 
 }

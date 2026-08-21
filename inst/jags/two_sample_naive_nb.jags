@@ -27,6 +27,6 @@ model {
   prob_y2 <- c2 / (c2 + lambda2)
 
   # --- Rate ratio ---
-  rate_ratio <- lambda1 / lambda2
+  rates_ratio <- lambda1 / lambda2
 
 }

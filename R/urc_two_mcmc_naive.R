@@ -90,7 +90,7 @@ urc_two_mcmc_naive <- function(
   parameters_zip <- c(
     "lambda1",
     "lambda2",
-    "rate_ratio",
+    "rates_ratio",
     "pi1",
     "pi2",
     "loglik"
@@ -99,7 +99,7 @@ urc_two_mcmc_naive <- function(
   parameters_nb <- c(
     "lambda1",
     "lambda2",
-    "rate_ratio",
+    "rates_ratio",
     "c1",
     "c2",
     "loglik"
