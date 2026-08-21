@@ -1,10 +1,9 @@
-#' @title Plot Posterior Histograms
+#' @title Plot Posterior Autocorrelation Functions
 #'
 #' @description
-#' Creates posterior histograms for parameters from a JAGS MCMC model.
-#' Parameters can be selected individually or by their base parameter name.
-#' The resulting \code{ggplot2} object can be further customized using
-#' standard \code{ggplot2} functionality.
+#' Creates autocorrelation function (ACF) plots for posterior samples
+#' from a JAGS MCMC model. Autocorrelation is calculated separately
+#' for each MCMC chain and parameter.
 #'
 #' @param model A fitted JAGS model object containing posterior samples.
 #'
@@ -22,41 +21,20 @@
 #' @param deviance Logical; should posterior deviance be included?
 #'   Defaults to \code{FALSE}.
 #'
+#' @param chains Optional numeric vector specifying the chains to plot.
+#'   If \code{NULL}, all available chains are plotted.
+#'
+#' @param max_lag Maximum lag to display. Defaults to \code{50}.
+#'
 #' @param labels Optional named character vector used to rename parameter
 #'   labels in the facets. Names can correspond to exact parameter names
 #'   or base parameter names.
 #'
-#' @param bins Number of histogram bins. Defaults to \code{30}.
-#'
-#' @param binwidth Optional numeric value specifying the width of the
-#'   histogram bins. If \code{NULL}, \code{ggplot2} determines the bin
-#'   width automatically.
-#'
-#' @param fill Character string specifying the histogram fill color.
-#'   Defaults to \code{NA}, producing an unfilled histogram.
-#'
-#' @param color Character string specifying the histogram outline color.
-#'   Defaults to \code{"#333333"}.
-#'
-#' @param alpha Numeric value between 0 and 1 specifying histogram
-#'   transparency. Defaults to \code{1}.
-#'
-#' @param linewidth Numeric value specifying the histogram outline width.
-#'   Defaults to \code{0.4}.
-#'
-#' @param scales Character string specifying the scales used for the
-#'   facets. Must be one of \code{"fixed"}, \code{"free"}, \code{"free_x"},
-#'   or \code{"free_y"}. Defaults to \code{"free"}.
-#'
-#' @param ncol Number of columns in the facet layout.
-#'
-#' @param nrow Number of rows in the facet layout.
-#'
 #' @param x_label Character string specifying the x-axis label.
-#'   Defaults to \code{"Posterior"}.
+#'   Defaults to \code{"Lag"}.
 #'
 #' @param y_label Character string specifying the y-axis label.
-#'   Defaults to \code{"Density"}.
+#'   Defaults to \code{"Autocorrelation"}.
 #'
 #' @param title Optional plot title.
 #'
@@ -64,18 +42,23 @@
 #'
 #' @param caption Optional plot caption.
 #'
+#' @param scales Character string specifying the scales used for the
+#'   facets. Must be one of \code{"fixed"}, \code{"free"}, \code{"free_x"},
+#'   or \code{"free_y"}. Defaults to \code{"fixed"}.
+#'
+#' @param line_args Named list of arguments passed to
+#'   \code{ggplot2::geom_line()}.
+#'
 #' @param theme A ggplot2 theme object. Defaults to
 #'   \code{ggplot2::theme_minimal()}.
 #'
 #' @param theme_args Named list of arguments passed to
 #'   \code{ggplot2::theme()}.
 #'
-#' @param histogram_args Named list of additional arguments passed to
-#'   \code{ggplot2::geom_histogram()}.
-#'
 #' @param ... Additional ggplot2 layers or components added to the plot.
 #'
-#' @return A \code{ggplot} object showing posterior histograms.
+#' @return A \code{ggplot} object showing posterior autocorrelation
+#'   functions for each parameter and MCMC chain.
 #'
 #' @export
 #'
@@ -83,35 +66,29 @@
 #' \dontrun{
 #' output <- urc_mcmc(x = mydata)
 #'
-#' # Plot all parameters
-#' urc_hist(output$models$poisson)
+#' # Plot ACF for all parameters and all chains
+#' urc_acf(output$models$poisson)
 #'
 #' # Plot selected parameters
-#' urc_hist(
+#' urc_acf(
 #'   output$models$zip,
 #'   parameters = c("lambda", "pi")
 #' )
 #'
-#' # Plot a specific indexed parameter
-#' urc_hist(
-#'   output$models$zip,
-#'   parameters = "lambda[1]"
+#' # Plot selected chains
+#' urc_acf(
+#'   output$models$poisson,
+#'   chains = 1
 #' )
 #'
-#' # Plot all lambda parameters
-#' urc_hist(
-#'   output$models$zip,
-#'   parameters = "lambda"
-#' )
-#'
-#' # Exclude a parameter
-#' urc_hist(
-#'   output$models$zip,
-#'   exclude = "pi"
+#' # Change maximum lag
+#' urc_acf(
+#'   output$models$poisson,
+#'   max_lag = 100
 #' )
 #'
 #' # Rename parameters
-#' urc_hist(
+#' urc_acf(
 #'   output$models$zip,
 #'   labels = c(
 #'     lambda = "Mean Count",
@@ -119,51 +96,38 @@
 #'   )
 #' )
 #'
-#' # Add color
-#' urc_hist(
+#' # Customize the plot
+#' urc_acf(
 #'   output$models$poisson,
-#'   fill = "#0072B2",
-#'   color = "#0072B2",
-#'   alpha = 0.3
-#' )
-#'
-#' # Publication-style plot
-#' urc_hist(
-#'   output$models$poisson,
-#'   theme = ggplot2::theme_classic(),
-#'   bins = 25
+#'   title = "Posterior Autocorrelation",
+#'   line_args = list(linewidth = 1),
+#'   theme = ggplot2::theme_classic()
 #' )
 #'
 #' # Add additional ggplot components
-#' urc_hist(output$models$poisson) +
-#'   ggplot2::geom_vline(
-#'     xintercept = 0,
+#' urc_acf(output$models$poisson) +
+#'   ggplot2::geom_hline(
+#'     yintercept = 0,
 #'     linetype = "dashed"
 #'   )
 #' }
-urc_hist <- function(
+urc_acf <- function(
     model,
     parameters = NULL,
     exclude = NULL,
     deviance = FALSE,
+    chains = NULL,
+    max_lag = 50,
     labels = NULL,
-    bins = 30,
-    binwidth = NULL,
-    fill = NA,
-    color = "#333333",
-    alpha = 1,
-    linewidth = 0.4,
-    scales = "free",
-    ncol = NULL,
-    nrow = NULL,
-    x_label = "Posterior",
-    y_label = "Density",
+    x_label = "Lag",
+    y_label = "Autocorrelation",
     title = NULL,
     subtitle = NULL,
     caption = NULL,
+    scales = "fixed",
+    line_args = list(),
     theme = ggplot2::theme_minimal(),
     theme_args = list(),
-    histogram_args = list(),
     ...
 ) {
 
@@ -171,61 +135,73 @@ urc_hist <- function(
   # Check model object
   # -------------------------------------------------------------------
 
-  if (is.null(model$BUGSoutput$sims.matrix)) {
+  if (is.null(model$BUGSoutput$sims.array)) {
     stop(
-      "`model` does not contain a valid BUGS posterior sample matrix.",
+      "`model` does not contain a valid BUGS posterior sample array.",
       call. = FALSE
     )
   }
 
+  sims <- model$BUGSoutput$sims.array
+
   # -------------------------------------------------------------------
-  # Extract posterior samples
+  # Check dimensions
   # -------------------------------------------------------------------
 
-  samples <- as.data.frame(
-    model$BUGSoutput$sims.matrix
+  if (length(dim(sims)) != 3) {
+    stop(
+      "`model$BUGSoutput$sims.array` must be a three-dimensional array.",
+      call. = FALSE
+    )
+  }
+
+  n_iter <- dim(sims)[1]
+  n_chains <- dim(sims)[2]
+  parameter_names <- dimnames(sims)[[3]]
+
+  # -------------------------------------------------------------------
+  # Validate max_lag
+  # -------------------------------------------------------------------
+
+  if (!is.numeric(max_lag) ||
+      length(max_lag) != 1 ||
+      is.na(max_lag) ||
+      max_lag < 0) {
+
+    stop(
+      "`max_lag` must be a single non-negative numeric value.",
+      call. = FALSE
+    )
+  }
+
+  max_lag <- min(
+    as.integer(max_lag),
+    n_iter - 1
   )
 
   # -------------------------------------------------------------------
-  # Convert to long format
+  # Validate chains
   # -------------------------------------------------------------------
 
-  plot_data <- samples |>
-    tibble::rownames_to_column(
-      var = ".iter"
-    ) |>
-    tidyr::pivot_longer(
-      cols = -".iter",
-      names_to = "parameter",
-      values_to = "value"
-    ) |>
-    dplyr::mutate(
-      base_parameter = sub(
-        "\\[.*$",
-        "",
-        parameter
+  if (!is.null(chains)) {
+
+    if (!is.numeric(chains) ||
+        any(is.na(chains)) ||
+        any(chains < 1) ||
+        any(chains > n_chains) ||
+        any(chains != as.integer(chains))) {
+
+      stop(
+        "`chains` must contain valid chain numbers.",
+        call. = FALSE
       )
-    )
+    }
 
-  # -------------------------------------------------------------------
-  # Remove log-likelihood
-  # -------------------------------------------------------------------
+    chains <- as.integer(chains)
 
-  plot_data <- plot_data |>
-    dplyr::filter(
-      base_parameter != "loglik"
-    )
+  } else {
 
-  # -------------------------------------------------------------------
-  # Remove deviance unless requested
-  # -------------------------------------------------------------------
-
-  if (!deviance) {
-
-    plot_data <- plot_data |>
-      dplyr::filter(
-        base_parameter != "deviance"
-      )
+    chains <- seq_len(n_chains)
   }
 
   # -------------------------------------------------------------------
@@ -251,7 +227,70 @@ urc_hist <- function(
   }
 
   # -------------------------------------------------------------------
-  # Validate parameters
+  # Validate labels
+  # -------------------------------------------------------------------
+
+  if (!is.null(labels)) {
+
+    if (!is.character(labels) ||
+        is.null(names(labels)) ||
+        any(names(labels) == "")) {
+
+      stop(
+        "`labels` must be a named character vector.",
+        call. = FALSE
+      )
+    }
+  }
+
+  # -------------------------------------------------------------------
+  # Validate plotting arguments
+  # -------------------------------------------------------------------
+
+  if (!is.list(line_args)) {
+    stop(
+      "`line_args` must be a named list.",
+      call. = FALSE
+    )
+  }
+
+  if (!is.list(theme_args)) {
+    stop(
+      "`theme_args` must be a named list.",
+      call. = FALSE
+    )
+  }
+
+  # -------------------------------------------------------------------
+  # Identify available parameters
+  # -------------------------------------------------------------------
+
+  parameter_df <- tibble::tibble(
+    parameter = parameter_names,
+    base_parameter = sub(
+      "\\[.*$",
+      "",
+      parameter_names
+    )
+  )
+
+  # Remove log-likelihood
+  parameter_df <- parameter_df |>
+    dplyr::filter(
+      base_parameter != "loglik"
+    )
+
+  # Remove deviance unless requested
+  if (!deviance) {
+
+    parameter_df <- parameter_df |>
+      dplyr::filter(
+        base_parameter != "deviance"
+      )
+  }
+
+  # -------------------------------------------------------------------
+  # Select requested parameters
   # -------------------------------------------------------------------
 
   if (!is.null(parameters)) {
@@ -263,12 +302,10 @@ urc_hist <- function(
       )
     }
 
-    available_parameters <- unique(
-      plot_data$parameter
-    )
+    available_parameters <- parameter_df$parameter
 
     available_base_parameters <- unique(
-      plot_data$base_parameter
+      parameter_df$base_parameter
     )
 
     valid_parameters <- parameters[
@@ -293,7 +330,7 @@ urc_hist <- function(
       )
     }
 
-    plot_data <- plot_data |>
+    parameter_df <- parameter_df |>
       dplyr::filter(
         parameter %in% valid_parameters |
           base_parameter %in% valid_parameters
@@ -301,7 +338,7 @@ urc_hist <- function(
   }
 
   # -------------------------------------------------------------------
-  # Validate exclusions
+  # Exclude parameters
   # -------------------------------------------------------------------
 
   if (!is.null(exclude)) {
@@ -313,7 +350,7 @@ urc_hist <- function(
       )
     }
 
-    plot_data <- plot_data |>
+    parameter_df <- parameter_df |>
       dplyr::filter(
         !(
           parameter %in% exclude |
@@ -326,95 +363,62 @@ urc_hist <- function(
   # Check that parameters remain
   # -------------------------------------------------------------------
 
-  if (nrow(plot_data) == 0) {
-
+  if (nrow(parameter_df) == 0) {
     stop(
       "No posterior samples available for the selected parameters.",
       call. = FALSE
     )
   }
 
+  selected_parameters <- parameter_df$parameter
+
   # -------------------------------------------------------------------
-  # Validate labels
+  # Calculate ACF separately for every parameter and chain
   # -------------------------------------------------------------------
 
-  if (!is.null(labels)) {
+  acf_data <- purrr::map_dfr(
+    selected_parameters,
+    function(parameter_name) {
 
-    if (!is.character(labels) ||
-        is.null(names(labels)) ||
-        any(names(labels) == "")) {
+      purrr::map_dfr(
+        chains,
+        function(chain_number) {
 
-      stop(
-        "`labels` must be a named character vector.",
-        call. = FALSE
+          values <- sims[
+            ,
+            chain_number,
+            parameter_name
+          ]
+
+          acf_result <- stats::acf(
+            values,
+            lag.max = max_lag,
+            plot = FALSE
+          )
+
+          tibble::tibble(
+            parameter = parameter_name,
+            chain = factor(
+              paste0("Chain ", chain_number),
+              levels = paste0("Chain ", chains)
+            ),
+            lag = as.numeric(
+              acf_result$lag
+            ),
+            acf = as.numeric(
+              acf_result$acf
+            )
+          )
+        }
       )
     }
-  }
-
-  # -------------------------------------------------------------------
-  # Validate histogram arguments
-  # -------------------------------------------------------------------
-
-  if (!is.numeric(bins) ||
-      length(bins) != 1 ||
-      is.na(bins) ||
-      bins <= 0) {
-
-    stop(
-      "`bins` must be a positive numeric value.",
-      call. = FALSE
-    )
-  }
-
-  if (!is.null(binwidth)) {
-
-    if (!is.numeric(binwidth) ||
-        length(binwidth) != 1 ||
-        is.na(binwidth) ||
-        binwidth <= 0) {
-
-      stop(
-        "`binwidth` must be NULL or a positive numeric value.",
-        call. = FALSE
-      )
-    }
-  }
-
-  if (!is.numeric(alpha) ||
-      length(alpha) != 1 ||
-      is.na(alpha) ||
-      alpha < 0 ||
-      alpha > 1) {
-
-    stop(
-      "`alpha` must be a single value between 0 and 1.",
-      call. = FALSE
-    )
-  }
-
-  if (!is.list(histogram_args)) {
-    stop(
-      "`histogram_args` must be a named list.",
-      call. = FALSE
-    )
-  }
-
-  if (!is.list(theme_args)) {
-    stop(
-      "`theme_args` must be a named list.",
-      call. = FALSE
-    )
-  }
+  )
 
   # -------------------------------------------------------------------
   # Apply parameter labels
   # -------------------------------------------------------------------
 
-  parameter_labels <- plot_data |>
-    dplyr::distinct(
-      parameter,
-      base_parameter
-    ) |>
+  parameter_df <- parameter_df |>
     dplyr::mutate(
       parameter_label = dplyr::coalesce(
         if (!is.null(labels)) {
@@ -431,40 +435,30 @@ urc_hist <- function(
       )
     )
 
-  plot_data <- plot_data |>
+  acf_data <- acf_data |>
     dplyr::left_join(
-      parameter_labels,
-      by = c(
-        "parameter",
-        "base_parameter"
-      )
+      parameter_df |>
+        dplyr::select(
+          parameter,
+          parameter_label
+        ),
+      by = "parameter"
     )
 
   # -------------------------------------------------------------------
-  # Create histogram layer
+  # Create line layer
   # -------------------------------------------------------------------
 
-  histogram_arguments <- list(
-    mapping = ggplot2::aes(
-      x = value,
-      y = ggplot2::after_stat(density)
-    ),
-    bins = bins,
-    fill = fill,
-    color = color,
-    alpha = alpha,
-    linewidth = linewidth
-  )
-
-  if (!is.null(binwidth)) {
-    histogram_arguments$binwidth <- binwidth
-  }
-
-  histogram_layer <- do.call(
-    ggplot2::geom_histogram,
+  line_layer <- do.call(
+    ggplot2::geom_line,
     c(
-      histogram_arguments,
-      histogram_args
+      list(
+        mapping = ggplot2::aes(
+          x = lag,
+          y = acf
+        )
+      ),
+      line_args
     )
   )
 
@@ -473,14 +467,17 @@ urc_hist <- function(
   # -------------------------------------------------------------------
 
   p <- ggplot2::ggplot(
-    plot_data
+    acf_data
   ) +
-    histogram_layer +
-    ggplot2::facet_wrap(
-      ~ parameter_label,
-      scales = scales,
-      ncol = ncol,
-      nrow = nrow
+    line_layer +
+    ggplot2::geom_hline(
+      yintercept = 0,
+      linetype = "dashed"
+    ) +
+    ggplot2::facet_grid(
+      rows = ggplot2::vars(chain),
+      cols = ggplot2::vars(parameter_label),
+      scales = scales
     ) +
     ggplot2::labs(
       x = x_label,

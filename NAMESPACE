@@ -2,6 +2,7 @@
 
 export(loo_comparison)
 export(urc_HPD)
+export(urc_acf)
 export(urc_density)
 export(urc_hist)
 export(urc_mcmc)

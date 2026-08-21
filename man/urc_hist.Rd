@@ -2,27 +2,173 @@
 % Please edit documentation in R/urc_hist.R
 \name{urc_hist}
 \alias{urc_hist}
-\title{Plot Posterior Histogram}
+\title{Plot Posterior Histograms}
 \usage{
-urc_hist(model, parameters = NULL, deviance = FALSE)
+urc_hist(
+  model,
+  parameters = NULL,
+  exclude = NULL,
+  deviance = FALSE,
+  labels = NULL,
+  bins = 30,
+  binwidth = NULL,
+  fill = NA,
+  color = "#333333",
+  alpha = 1,
+  linewidth = 0.4,
+  scales = "free",
+  ncol = NULL,
+  nrow = NULL,
+  x_label = "Posterior",
+  y_label = "Density",
+  title = NULL,
+  subtitle = NULL,
+  caption = NULL,
+  theme = ggplot2::theme_minimal(),
+  theme_args = list(),
+  histogram_args = list(),
+  ...
+)
 }
 \arguments{
-\item{model}{A model object returned by \code{UndercountR::urc_mcmc()}.}
+\item{model}{A fitted JAGS model object containing posterior samples.}
 
-\item{parameters}{Optional character vector of parameter names to include in the plot.
-If \code{NULL} (default), all parameters are plotted except deviance}
+\item{parameters}{Optional character vector specifying the parameters
+to plot. If \code{NULL}, all available parameters are plotted except
+\code{loglik} and, by default, \code{deviance}. Parameters can be
+specified by their exact name (e.g., \code{"lambda[1]"}) or by their
+base name (e.g., \code{"lambda"}), which selects all indexed
+parameters.}
 
-\item{deviance}{Logical specifying whether to include plot of posterior deviance. Default is \code{deviance = FALSE}.}
+\item{exclude}{Optional character vector specifying parameters to
+exclude from the plot. Exact parameter names or base parameter names
+can be used.}
+
+\item{deviance}{Logical; should posterior deviance be included?
+Defaults to \code{FALSE}.}
+
+\item{labels}{Optional named character vector used to rename parameter
+labels in the facets. Names can correspond to exact parameter names
+or base parameter names.}
+
+\item{bins}{Number of histogram bins. Defaults to \code{30}.}
+
+\item{binwidth}{Optional numeric value specifying the width of the
+histogram bins. If \code{NULL}, \code{ggplot2} determines the bin
+width automatically.}
+
+\item{fill}{Character string specifying the histogram fill color.
+Defaults to \code{NA}, producing an unfilled histogram.}
+
+\item{color}{Character string specifying the histogram outline color.
+Defaults to \code{"#333333"}.}
+
+\item{alpha}{Numeric value between 0 and 1 specifying histogram
+transparency. Defaults to \code{1}.}
+
+\item{linewidth}{Numeric value specifying the histogram outline width.
+Defaults to \code{0.4}.}
+
+\item{scales}{Character string specifying the scales used for the
+facets. Must be one of \code{"fixed"}, \code{"free"}, \code{"free_x"},
+or \code{"free_y"}. Defaults to \code{"free"}.}
+
+\item{ncol}{Number of columns in the facet layout.}
+
+\item{nrow}{Number of rows in the facet layout.}
+
+\item{x_label}{Character string specifying the x-axis label.
+Defaults to \code{"Posterior"}.}
+
+\item{y_label}{Character string specifying the y-axis label.
+Defaults to \code{"Density"}.}
+
+\item{title}{Optional plot title.}
+
+\item{subtitle}{Optional plot subtitle.}
+
+\item{caption}{Optional plot caption.}
+
+\item{theme}{A ggplot2 theme object. Defaults to
+\code{ggplot2::theme_minimal()}.}
+
+\item{theme_args}{Named list of arguments passed to
+\code{ggplot2::theme()}.}
+
+\item{histogram_args}{Named list of additional arguments passed to
+\code{ggplot2::geom_histogram()}.}
+
+\item{...}{Additional ggplot2 layers or components added to the plot.}
 }
 \value{
-A \code{ggplot} object showing posterior histogram for each parameter.
+A \code{ggplot} object showing posterior histograms.
 }
 \description{
-Creates a histogram plot for each parameter in the BUGS MCMC output.
+Creates posterior histograms for parameters from a JAGS MCMC model.
+Parameters can be selected individually or by their base parameter name.
+The resulting \code{ggplot2} object can be further customized using
+standard \code{ggplot2} functionality.
 }
 \examples{
 \dontrun{
-output <- urc_mcmc(data = mydata)
-urc_density(output$models$poisson)
+output <- urc_mcmc(x = mydata)
+
+# Plot all parameters
+urc_hist(output$models$poisson)
+
+# Plot selected parameters
+urc_hist(
+  output$models$zip,
+  parameters = c("lambda", "pi")
+)
+
+# Plot a specific indexed parameter
+urc_hist(
+  output$models$zip,
+  parameters = "lambda[1]"
+)
+
+# Plot all lambda parameters
+urc_hist(
+  output$models$zip,
+  parameters = "lambda"
+)
+
+# Exclude a parameter
+urc_hist(
+  output$models$zip,
+  exclude = "pi"
+)
+
+# Rename parameters
+urc_hist(
+  output$models$zip,
+  labels = c(
+    lambda = "Mean Count",
+    pi = "Zero-Inflation Probability"
+  )
+)
+
+# Add color
+urc_hist(
+  output$models$poisson,
+  fill = "#0072B2",
+  color = "#0072B2",
+  alpha = 0.3
+)
+
+# Publication-style plot
+urc_hist(
+  output$models$poisson,
+  theme = ggplot2::theme_classic(),
+  bins = 25
+)
+
+# Add additional ggplot components
+urc_hist(output$models$poisson) +
+  ggplot2::geom_vline(
+    xintercept = 0,
+    linetype = "dashed"
+  )
 }
 }

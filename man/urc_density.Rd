@@ -4,31 +4,108 @@
 \alias{urc_density}
 \title{Plot Posterior Densities}
 \usage{
-urc_density(model, parameters = NULL, exclude = NULL, deviance = FALSE)
+urc_density(
+  model,
+  parameters = NULL,
+  exclude = NULL,
+  deviance = FALSE,
+  labels = NULL,
+  fill = "#333333",
+  color = NA,
+  alpha = 0.25,
+  linewidth = 0.6,
+  adjust = 1,
+  scales = "free",
+  ncol = NULL,
+  nrow = NULL,
+  x_label = "Posterior",
+  y_label = "Density",
+  title = NULL,
+  subtitle = NULL,
+  caption = NULL,
+  theme = ggplot2::theme_minimal(),
+  theme_args = list(),
+  density_args = list(),
+  ...
+)
 }
 \arguments{
 \item{model}{A fitted JAGS model object containing posterior samples.}
 
-\item{parameters}{Optional character vector specifying the parameters to plot.
-If \code{NULL}, all available parameters are plotted except \code{loglik}
-and, by default, \code{deviance}. Parameters can be specified by their
-exact name (e.g., \code{"lambda[1]"}) or by their base name
-(e.g., \code{"lambda"}), which selects all indexed parameters such as
-\code{"lambda[1]"}, \code{"lambda[2]"}, etc.}
-
-\item{exclude}{Optional character vector specifying parameters to exclude
-from the plot. Exact parameter names can be used (e.g., \code{"lambda[1]"})
-or base parameter names (e.g., \code{"lambda"}) to exclude all indexed
+\item{parameters}{Optional character vector specifying the parameters
+to plot. If \code{NULL}, all available parameters are plotted except
+\code{loglik} and, by default, \code{deviance}. Parameters can be
+specified by their exact name (e.g., \code{"lambda[1]"}) or by their
+base name (e.g., \code{"lambda"}), which selects all indexed
 parameters.}
+
+\item{exclude}{Optional character vector specifying parameters to
+exclude from the plot. Exact parameter names or base parameter names
+can be used.}
 
 \item{deviance}{Logical; should posterior deviance be included?
 Defaults to \code{FALSE}.}
+
+\item{labels}{Optional named character vector used to rename parameter
+labels in the facets. Names can correspond to exact parameter names
+or base parameter names.}
+
+\item{fill}{Character string specifying the fill color of the density.
+Defaults to \code{"#333333"}.}
+
+\item{color}{Character string specifying the outline color of the
+density. Defaults to \code{NA}, meaning no outline is drawn.}
+
+\item{alpha}{Numeric value between 0 and 1 specifying density
+transparency. Defaults to \code{0.25}.}
+
+\item{linewidth}{Numeric value specifying the width of the density
+outline. Defaults to \code{0.6}.}
+
+\item{adjust}{Numeric value used to adjust the bandwidth of the
+density estimate. Values greater than 1 produce a smoother density,
+while values less than 1 produce a more detailed density.
+Defaults to \code{1}.}
+
+\item{scales}{Character string specifying the scales used for the
+facets. Must be one of \code{"fixed"}, \code{"free"}, \code{"free_x"},
+or \code{"free_y"}. Defaults to \code{"free"}.}
+
+\item{ncol}{Number of columns in the facet layout.}
+
+\item{nrow}{Number of rows in the facet layout.}
+
+\item{x_label}{Character string specifying the x-axis label.
+Defaults to \code{"Posterior"}.}
+
+\item{y_label}{Character string specifying the y-axis label.
+Defaults to \code{"Density"}.}
+
+\item{title}{Optional plot title.}
+
+\item{subtitle}{Optional plot subtitle.}
+
+\item{caption}{Optional plot caption.}
+
+\item{theme}{A ggplot2 theme object. Defaults to
+\code{ggplot2::theme_minimal()}.}
+
+\item{theme_args}{Named list of arguments passed to
+\code{ggplot2::theme()}.}
+
+\item{density_args}{Named list of additional arguments passed to
+\code{ggplot2::geom_density()}.}
+
+\item{...}{Additional ggplot2 layers or components added to the plot.}
 }
 \value{
 A \code{ggplot} object showing posterior densities.
 }
 \description{
-Creates posterior density plots from a JAGS MCMC model.
+Creates posterior density plots from posterior samples obtained from
+a JAGS MCMC model. Parameters can be selected individually or by their
+base parameter name, and the resulting \code{ggplot2} object can be
+extensively customized.
 }
 \examples{
 \dontrun{
@@ -49,39 +126,42 @@ urc_density(
   parameters = "lambda[1]"
 )
 
-# Plot selected indexed parameters
-urc_density(
-  output$models$zip,
-  parameters = c("lambda[1]", "lambda[3]")
-)
-
 # Plot all lambda parameters
 urc_density(
   output$models$zip,
   parameters = "lambda"
 )
 
-# Exclude a specific indexed parameter
+# Rename parameters
 urc_density(
   output$models$zip,
-  exclude = "lambda[1]"
+  labels = c(
+    lambda = "Mean Count",
+    pi = "Zero-Inflation Probability"
+  )
 )
 
-# Exclude all lambda parameters
-urc_density(
-  output$models$zip,
-  exclude = "lambda"
-)
-
-# Include posterior deviance
+# Publication-style plot
 urc_density(
   output$models$poisson,
-  deviance = TRUE
+  fill = "#333333",
+  alpha = 0.25,
+  color = "#333333",
+  linewidth = 0.6,
+  theme = ggplot2::theme_classic()
 )
 
-# Customize the returned ggplot object
+# Customize density estimation
+urc_density(
+  output$models$poisson,
+  adjust = 1.5
+)
+
+# Add additional ggplot components
 urc_density(output$models$poisson) +
-  ggplot2::theme_minimal() +
-  ggplot2::labs(title = "Posterior Densities")
+  ggplot2::geom_vline(
+    xintercept = 0,
+    linetype = "dashed"
+  )
 }
 }
