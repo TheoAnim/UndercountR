@@ -173,7 +173,7 @@ BUCM/
 
 If you use BUCM in published research, please cite:
 
-Anim Bediako, T., Roberman, J. L., Barth, J., & Stamey, J. D. (2026). *Bayesian modeling of one and two-sample count data with underreporting.*
+Anim Bediako, T., Roberman, J. L., Barth, J., & Stamey, J. D. (2026). *BUCM: An R package for Bayesian modeling of one and two sample count models with underreporting.*
 
 (Citation will be updated after publication.)
 
