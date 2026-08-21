@@ -72,7 +72,7 @@ nobs <- 300    # Non-validation sample size
 ystar <- bizicount::rzip(nv, lambda = lambda, psi = pi)
 yval  <- rbinom(nv, size = ystar, prob = p)
 
-# Non-validation sample: observed counts only
+# observed counts subject to underreporting
 yobs <- bizicount::rzip(
   nobs,
   lambda = lambda * p,
@@ -135,7 +135,7 @@ fit$dic_best
 
 ```r
 fit$models$poisson |> 
-  MCMCvis::MCMCsummary(params = c("p", "lambda", "mu"))
+  MCMCvis::MCMCsummary(params = c("p", "lambda"))
 ```
 
 ---
