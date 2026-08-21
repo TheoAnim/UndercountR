@@ -29,9 +29,6 @@ model {
   p1 ~ prior_p1
   p2 ~ prior_p2
 
-  # Derived quantity:
-  mu1 <- lambda1 * p1
-  mu2 <- lambda2 * p2
 
   # rates ratio
   rate_ratio <- lambda1/lambda2
