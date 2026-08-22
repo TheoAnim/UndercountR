@@ -477,7 +477,8 @@ urc_acf <- function(
     ggplot2::facet_grid(
       rows = ggplot2::vars(chain),
       cols = ggplot2::vars(parameter_label),
-      scales = scales
+      scales = scales,
+      labeller = ggplot2::label_parsed
     ) +
     ggplot2::labs(
       x = x_label,
