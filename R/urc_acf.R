@@ -112,25 +112,24 @@
 #'   )
 #' }
 urc_acf <- function(
-    model,
-    parameters = NULL,
-    exclude = NULL,
-    deviance = FALSE,
-    chains = NULL,
-    max_lag = 50,
-    labels = NULL,
-    x_label = "Lag",
-    y_label = "Autocorrelation",
-    title = NULL,
-    subtitle = NULL,
-    caption = NULL,
-    scales = "fixed",
-    line_args = list(),
-    theme = ggplot2::theme_minimal(),
-    theme_args = list(),
-    ...
+  model,
+  parameters = NULL,
+  exclude = NULL,
+  deviance = FALSE,
+  chains = NULL,
+  max_lag = 50,
+  labels = NULL,
+  x_label = "Lag",
+  y_label = "Autocorrelation",
+  title = NULL,
+  subtitle = NULL,
+  caption = NULL,
+  scales = "fixed",
+  line_args = list(),
+  theme = ggplot2::theme_minimal(),
+  theme_args = list(),
+  ...
 ) {
-
   # -------------------------------------------------------------------
   # Check model object
   # -------------------------------------------------------------------
@@ -163,11 +162,12 @@ urc_acf <- function(
   # Validate max_lag
   # -------------------------------------------------------------------
 
-  if (!is.numeric(max_lag) ||
+  if (
+    !is.numeric(max_lag) ||
       length(max_lag) != 1 ||
       is.na(max_lag) ||
-      max_lag < 0) {
-
+      max_lag < 0
+  ) {
     stop(
       "`max_lag` must be a single non-negative numeric value.",
       call. = FALSE
@@ -184,13 +184,13 @@ urc_acf <- function(
   # -------------------------------------------------------------------
 
   if (!is.null(chains)) {
-
-    if (!is.numeric(chains) ||
+    if (
+      !is.numeric(chains) ||
         any(is.na(chains)) ||
         any(chains < 1) ||
         any(chains > n_chains) ||
-        any(chains != as.integer(chains))) {
-
+        any(chains != as.integer(chains))
+    ) {
       stop(
         "`chains` must contain valid chain numbers.",
         call. = FALSE
@@ -198,9 +198,7 @@ urc_acf <- function(
     }
 
     chains <- as.integer(chains)
-
   } else {
-
     chains <- seq_len(n_chains)
   }
 
@@ -208,15 +206,17 @@ urc_acf <- function(
   # Validate scales
   # -------------------------------------------------------------------
 
-  if (!is.character(scales) ||
+  if (
+    !is.character(scales) ||
       length(scales) != 1 ||
-      !scales %in% c(
-        "fixed",
-        "free",
-        "free_x",
-        "free_y"
-      )) {
-
+      !scales %in%
+        c(
+          "fixed",
+          "free",
+          "free_x",
+          "free_y"
+        )
+  ) {
     stop(
       paste0(
         "`scales` must be one of: ",
@@ -231,11 +231,11 @@ urc_acf <- function(
   # -------------------------------------------------------------------
 
   if (!is.null(labels)) {
-
-    if (!is.character(labels) ||
+    if (
+      !is.character(labels) ||
         is.null(names(labels)) ||
-        any(names(labels) == "")) {
-
+        any(names(labels) == "")
+    ) {
       stop(
         "`labels` must be a named character vector.",
         call. = FALSE
@@ -282,7 +282,6 @@ urc_acf <- function(
 
   # Remove deviance unless requested
   if (!deviance) {
-
     parameter_df <- parameter_df |>
       dplyr::filter(
         base_parameter != "deviance"
@@ -294,7 +293,6 @@ urc_acf <- function(
   # -------------------------------------------------------------------
 
   if (!is.null(parameters)) {
-
     if (!is.character(parameters)) {
       stop(
         "`parameters` must be a character vector or NULL.",
@@ -309,7 +307,8 @@ urc_acf <- function(
     )
 
     valid_parameters <- parameters[
-      parameters %in% available_parameters |
+      parameters %in%
+        available_parameters |
         parameters %in% available_base_parameters
     ]
 
@@ -319,7 +318,6 @@ urc_acf <- function(
     )
 
     if (length(missing_parameters) > 0) {
-
       warning(
         "The following parameters were not found: ",
         paste(
@@ -332,8 +330,7 @@ urc_acf <- function(
 
     parameter_df <- parameter_df |>
       dplyr::filter(
-        parameter %in% valid_parameters |
-          base_parameter %in% valid_parameters
+        parameter %in% valid_parameters | base_parameter %in% valid_parameters
       )
   }
 
@@ -342,7 +339,6 @@ urc_acf <- function(
   # -------------------------------------------------------------------
 
   if (!is.null(exclude)) {
-
     if (!is.character(exclude)) {
       stop(
         "`exclude` must be a character vector or NULL.",
@@ -352,10 +348,7 @@ urc_acf <- function(
 
     parameter_df <- parameter_df |>
       dplyr::filter(
-        !(
-          parameter %in% exclude |
-            base_parameter %in% exclude
-        )
+        !(parameter %in% exclude | base_parameter %in% exclude)
       )
   }
 
@@ -379,13 +372,10 @@ urc_acf <- function(
   acf_data <- purrr::map_dfr(
     selected_parameters,
     function(parameter_name) {
-
       purrr::map_dfr(
         chains,
         function(chain_number) {
-
-          values <- sims[
-            ,
+          values <- sims[,
             chain_number,
             parameter_name
           ]
@@ -478,7 +468,10 @@ urc_acf <- function(
       rows = ggplot2::vars(chain),
       cols = ggplot2::vars(parameter_label),
       scales = scales,
-      labeller = ggplot2::label_parsed
+      labeller = ggplot2::labeller(
+        chain = ggplot2::label_value,
+        parameter_label = ggplot2::label_parsed
+      )
     ) +
     ggplot2::labs(
       x = x_label,
@@ -494,7 +487,6 @@ urc_acf <- function(
   # -------------------------------------------------------------------
 
   if (length(theme_args) > 0) {
-
     p <- p +
       do.call(
         ggplot2::theme,
@@ -509,7 +501,6 @@ urc_acf <- function(
   additional_layers <- list(...)
 
   if (length(additional_layers) > 0) {
-
     for (layer in additional_layers) {
       p <- p + layer
     }
