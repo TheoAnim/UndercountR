@@ -6,7 +6,7 @@
 #' The function selects the most parsimonious model based on the Deviance Information Criterion (DIC).
 #'
 #' @param x A named list containing the data for JAGS models. Must include:
-#'   \code{yobs1}, \code{yobs2} (observed counts),
+#'   \code{yobs1}, \code{yobs2} (observed counts subject to underreporting),
 #'   \code{ystar1}, \code{ystar2} (true counts for validation),
 #'   \code{yval1}, \code{yval2} (validation observed counts)
 #'
