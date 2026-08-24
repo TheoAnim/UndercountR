@@ -13,8 +13,12 @@
 #'     \code{ystar}.}
 #'   }
 #' 
-#' @param thresh Numeric. Threshold for deciding between models when DICs are close.
-#'
+#' @param thresh Numeric. The threshold used for the parsimony rule. If the
+#' underreported Poisson model is within \code{thresh} units of the minimum
+#' value of a model-selection criterion, the Poisson model is selected as the
+#' preferred model; otherwise, the model with the minimum value of the
+#' criterion is selected. Applied separately to DIC, WAIC, and PSIS-LOO. Default is 2.
+#' 
 #' @param prior_lambda A prior distribution for the Poisson or ZIP rate parameter \code{lambda}.
 #'
 #' @param prior_p A prior distribution for the reporting probability \code{p}.

@@ -25,8 +25,11 @@ urc_two_mcmc_naive(
 \item{x}{A named list containing the observed count data for the two
 samples. Must include \code{yobs1} and \code{yobs2}.}
 
-\item{thresh}{Numeric. Threshold for deciding between models when
-information criteria are close. Default is 2.}
+\item{thresh}{Numeric. The threshold used for the parsimony rule. If the
+underreported Poisson model is within \code{thresh} units of the minimum
+value of a model-selection criterion, the Poisson model is selected as the
+preferred model; otherwise, the model with the minimum value of the
+criterion is selected. Applied separately to DIC, WAIC, and PSIS-LOO. Default is 2.}
 
 \item{prior_lambda1}{Prior for lambda in sample 1
 (Poisson/NB/ZIP).}

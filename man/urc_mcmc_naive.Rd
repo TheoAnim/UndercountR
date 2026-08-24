@@ -22,7 +22,11 @@ urc_mcmc_naive(
 \arguments{
 \item{x}{A named list containing the data(observed counts) to be passed to the JAGS models.}
 
-\item{thresh}{Numeric. Threshold for deciding between models when DICs are close.}
+\item{thresh}{Numeric. The threshold used for the parsimony rule. If the
+underreported Poisson model is within \code{thresh} units of the minimum
+value of a model-selection criterion, the Poisson model is selected as the
+preferred model; otherwise, the model with the minimum value of the
+criterion is selected. Applied separately to DIC, WAIC, and PSIS-LOO. Default is 2.}
 
 \item{prior_lambda}{A prior distribution for the Poisson or ZIP rate parameter \code{lambda}.}
 
@@ -48,11 +52,15 @@ and negative binomial models across multiple workers.
 If \code{FALSE}, the models are fitted sequentially.}
 }
 \value{
-A named list with the following components:
+A named list containing:
 \describe{
-\item{models}{A list of fitted model objects (class \code{rjags}).}
-\item{DICs}{A named numeric vector of DIC values for each model.}
-\item{best_model}{The model with the lowest DIC.}
+\item{models}{A named list of fitted \code{rjags} model objects.}
+\item{dics}{A data frame containing the DIC value for each fitted model.}
+\item{waics}{A data frame containing the WAIC value for each fitted model.}
+\item{loos}{A data frame containing the PSIS-LOO value for each fitted model.}
+\item{dic_best}{The preferred model selected using the DIC-based parsimony rule.}
+\item{waic_best}{The preferred model selected using the WAIC-based parsimony rule.}
+\item{loo_best}{The preferred model selected using the PSIS-LOO-based parsimony rule.}
 }
 }
 \description{

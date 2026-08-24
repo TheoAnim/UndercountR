@@ -10,7 +10,11 @@
 #'   \code{ystar1}, \code{ystar2} (true counts for validation),
 #'   \code{yval1}, \code{yval2} (validation observed counts)
 #'
-#' @param thresh Numeric. Threshold for deciding between models when DICs are close. Default is 2.
+#' @param thresh Numeric. The threshold used for the parsimony rule. If the
+#' underreported Poisson model is within \code{thresh} units of the minimum
+#' value of a model-selection criterion, the Poisson model is selected as the
+#' preferred model; otherwise, the model with the minimum value of the
+#' criterion is selected. Applied separately to DIC, WAIC, and PSIS-LOO. Default is 2.
 #'
 #' @param prior_lambda1 Prior for lambda (sample 1, Poisson/NB)
 #'
@@ -44,13 +48,18 @@
 #'   This enables simultaneous fitting of the Poisson, zero-inflated Poisson,
 #'   and negative binomial models across multiple workers.
 #'   If `FALSE`, the models are fitted sequentially.
+#' 
 #' @return A named list containing:
 #' \describe{
-#'   \item{models}{A list of fitted \code{rjags} model objects.}
-#'   \item{DICs}{A tibble with DIC values for each model.}
-#'   \item{best_model}{The model with the lowest DIC.}
+#'   \item{models}{A named list of fitted \code{rjags} model objects.}
+#'   \item{dics}{A data frame containing the DIC value for each fitted model.}
+#'   \item{waics}{A data frame containing the WAIC value for each fitted model.}
+#'   \item{loos}{A data frame containing the PSIS-LOO value for each fitted model.}
+#'   \item{dic_best}{The preferred model selected using the DIC-based parsimony rule.}
+#'   \item{waic_best}{The preferred model selected using the WAIC-based parsimony rule.}
+#'   \item{loo_best}{The preferred model selected using the PSIS-LOO-based parsimony rule.}
 #' }
-#'
+#' 
 #' @export
 urc_two_mcmc <- function(x,
                          thresh = 2,
