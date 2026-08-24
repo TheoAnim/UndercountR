@@ -25,22 +25,24 @@ bayesplot::color_scheme_set("viridis")
 }
 ```
 
-The **BUCM** packages provides an interface to fit Bayesian model to count data. The package is in it's simplest form without allowing for covariates(coming soon).
+**BUCM** (Bayesian Underreported Count Models) is an R package for Bayesian
+analysis of count data with and without underreporting. The package provides
+one-sample and two-sample Poisson, zero-inflated Poisson (ZIP), and negative
+binomial models.
 
-Three different distributions(Poisson, ZIP and Negative Binomial) of count data are supported. **BUCM** also includes model selection components that users can use to determine plausible underlying distribution for the count data. To the best of our knowledge, other MCMC diagnostic tools such as bayesplot.
+BUCM includes both naive models, which assume no underreporting, and
+underreported models that account for incomplete reporting. Model estimation
+is performed using Markov chain Monte Carlo (MCMC) methods through JAGS.
+
+Model comparison is available using DIC, WAIC, and PSIS-LOO.
 
 ## Installation
 
 Install the latest version from **Github**
 
 ```{r, eval = FALSE}
-remotes::install_github("TheoAnim/BUCM")
-```
-
-## Libraries
-```{r setup, warning = FALSE, message = FALSE}
-library(BUCM)
-library(ggplot2)
+install.packages("pak")
+pak::pkg_install("TheoAnim/BUCM")
 ```
 
 ## Illustrative Example
@@ -57,24 +59,57 @@ For the remaining units(the main study sample), only the underreported counts $Y
 Marginally, we can derived the distribution of $y$ as:
 $$Y \sim Poisson(\lambda p)$$ 
 
+## Generate the Data
+
 ```{r}
-set.seed(3)
-nv <- 30
-nobs <- 100
-lambda <- 4
-p <- .6
-ystar <- rpois(nv, lambda)
-yval <- rbinom(nv, ystar, p)
-yobs <- rpois(nobs, lambda * p)
+set.seed(123)
 
+# Simulation settings
+lambda <- 5
+p <- 0.7
+nv <- 100      # Validation sample size
+nobs <- 300    # Non-validation sample size
 
-data.frame(y = c(ystar, yval, yobs),
-           type = c(rep("ystar", nv), rep("yval", nv), rep("yobs", nobs))
+# Validation sample: latent counts (Y*) and observed counts (Y)
+ystar <- rpois(
+  nv,
+  lambda = lambda
+)
+
+yval <- rbinom(
+  nv,
+  size = ystar,
+  prob = p
+)
+
+# Observed counts subject to underreporting
+yobs <- rpois(
+  nobs,
+  lambda = lambda * p
+)
+```
+
+Here, `ystar` contains the true counts in the validation sample, `yval`
+contains the corresponding reported counts generated through the binomial
+reporting mechanism, and `yobs` contains the observed counts subject to
+underreporting in the main study sample.
+
+```{r}
+data.frame(
+  y = c(ystar, yval, yobs),
+  type = c(
+    rep("ystar", nv),
+    rep("yval", nv),
+    rep("yobs", nobs)
+  )
 ) |>
   ggplot() +
   geom_bar(aes(y)) +
-  facet_grid( ~ type)+
-  labs(x = "data")
+  facet_grid(~ type) +
+  labs(
+    x = "Count",
+    y = "Frequency"
+  )
 ```
 
 
@@ -84,14 +119,15 @@ With validation data available, prior specifications can be noninformative, weak
 
 ```{r}
 bayes_count_models <- BUCM::urc_mcmc(x = list(ystar = ystar, yval = yval, yobs = yobs), 
-                                    prior_p = "dbeta(3, 2)", 
+                                    prior_p = "dbeta(22, 18)", 
                                     prior_lambda = "dgamma(4, 1)")
 ```
 
 
 ### Model Diagnostics
 
-The log-likelihoods are monitored for WAIC and PSIS-LOO computations, so you must explicitly specify the parameters; otherwise, a summary of the log-likelihoods will be included. `ucr_mcmc` also returns the plausible model if using DIC/WAIC/PSIS-LOO as the model selection method. The likelihoods are also returned for each model allowing users to compute and diagnose WAIC and PSIS-LOO methods (Take note of warnings for WAIC and PSIS-LOO computations, see original `loo` documentation).
+BUCM provides extra diagnostics functions `urc_trace`, `urc_acf`, `urc_density` and `urc_hist`.
+`urc_mcmc` also returns the plausible model if using DIC/WAIC/PSIS-LOO as the model selection method. The likelihoods are also returned for each model allowing users to compute and diagnose WAIC and PSIS-LOO methods (Take note of warnings for WAIC and PSIS-LOO computations, see original `loo` documentation).
 
 
 ```{r}
@@ -99,19 +135,23 @@ bayes_count_models$models$poisson |>
   BUCM::urc_trace(parameters = c("mu", "lambda", "p"))
 ```
 
-**BUCM** is compatible with bayesplot package. Pass array of posterior draws to create trace plots, density, posterior intervals and other diagnostic visualizations.
-
+**BUCM** is compatible with bayesplot package. Pass array of posterior draws to create trace plots, density, posterior intervals and other diagnostic visualizations. The log-likelihoods are monitored for WAIC and PSIS-LOO computations, so you must explicitly specify the parameters; otherwise, log-likelihoods will be included. 
 ```{r}
 jm_poisson_array <- bayes_count_models$models$poisson$BUGSoutput$sims.array
 bayesplot::mcmc_dens(jm_poisson_array, pars = c("mu", "lambda", "p"))
 ```
-
 
 ```{r}
 bayesplot::mcmc_pairs(jm_poisson_array, pars = c("mu", "lambda", "p"))
 ```
 
 ### Posterior Summaries
+
+```{r}
+bayes_count_models$models$poisson |> BUCM::urc_posterior_summary()
+```
+
+Posterior summaries can also be obtained using `MCMCvis`.
 ```{r}
 bayes_count_models$models$poisson |> 
   MCMCvis::MCMCsummary(params = c("lambda", "p"))
@@ -161,8 +201,24 @@ Assuming no validation set, we can try informative priors on the parameters
 ```{r, eval = FALSE}
 bayes_count_models2 <- BUCM::urc_mcmc(
   x = list(ystar = NA, yval = NA, yobs = yobs),
-  prior_lambda = "dgamma(16, 4)",
-  prior_p = "dbeta(60, 40)"
+  prior_p = "dbeta(70, 30)",
+  prior_lambda = "dgamma(25, 5)"
 )
 ```
+
+# Two-Sample Models
+
+BUCM also provides two-sample versions of the Poisson, ZIP, and negative
+binomial models, including both naive and underreported models.
+
+See the `urc_two_mcmc()` and `urc_two_mcmc_naive` documentation for the required two-sample data structure.
+
+# Citation
+
+If you use BUCM in published research, please cite:
+
+> Anim Bediako, T., Roberman, J. L., Barth, J., & Stamey, J. D. (2026).
+> *BUCM: An R package for Bayesian modeling of one and two sample count
+> models with underreporting.*
+
 
