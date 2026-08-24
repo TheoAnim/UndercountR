@@ -16,7 +16,10 @@ knitr::opts_chunk$set(
   fig.height = 5,
   out.width = "90%"
 )
-bayesplot::color_scheme_set("viridis")
+```
+
+```{r}
+library(ggplot2)
 ```
 
 ```{css, include = FALSE}
@@ -127,6 +130,9 @@ bayes_count_models <- BUCM::urc_mcmc(
 )
 ```
 
+```{r}
+ls(bayes_count_models)
+```
 
 ### Model Diagnostics
 
@@ -213,14 +219,58 @@ bayes_count_models2 <- BUCM::urc_mcmc(
 
 # Two-Sample Models
 
+For the two-sample setting, we consider two independent Poisson populations with different underlying mean counts and reporting probabilities. No validation data are assumed to be available, so the model is fitted to the two observed underreported samples using informative priors centered on the values used to generate the data.
 ```{r}
+set.seed(123)
+
+# Simulation settings
+lambda1 <- 5
+lambda2 <- 8
+
+p1 <- 0.7
+p2 <- 0.6
+
+nobs <- 300 # Non-validation sample size
+
+# Observed counts subject to underreporting
+yobs1 <- rpois(
+  nobs,
+  lambda = lambda1 * p1
+)
+
+yobs2 <- rpois(
+  nobs,
+  lambda = lambda2 * p2
+)
 
 ```
 
 
+## Fit the two-sample model without validation data
+```{r}
+bayes_two_count_models <- BUCM::urc_two_mcmc(
+  x = list(
+    yobs1 = yobs1,
+    yobs2 = yobs2,
+    ystar1 = NA,
+    yval1 = NA,
+    ystar2 = NA,
+    yval2 = NA
+  ),
+  prior_p1 = "dbeta(70, 30)",
+  prior_p2 = "dbeta(60, 40)",
+  prior_lambda1 = "dgamma(25, 5)",
+  prior_lambda2 = "dgamma(32, 4)"
+)
+```
+```{r}
+ls(bayes_two_count_models)
+```
 
-BUCM also provides two-sample versions of the Poisson, ZIP, and negative
-binomial models, including both naive and underreported models.
+
+```{r}
+bayes_two_count_models$models$poisson |> BUCM::urc_trace()
+```
 
 See the `urc_mcmc_naive()` and `urc_two_mcmc_naive` documentation for the required of the naive case which assumes no underreporting.
 
