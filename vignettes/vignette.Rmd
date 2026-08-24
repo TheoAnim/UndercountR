@@ -213,10 +213,16 @@ bayes_count_models2 <- BUCM::urc_mcmc(
 
 # Two-Sample Models
 
+```{r}
+
+```
+
+
+
 BUCM also provides two-sample versions of the Poisson, ZIP, and negative
 binomial models, including both naive and underreported models.
 
-See the `urc_two_mcmc()` and `urc_two_mcmc_naive` documentation for the required two-sample implementation structure.
+See the `urc_mcmc_naive()` and `urc_two_mcmc_naive` documentation for the required of the naive case which assumes no underreporting.
 
 # Citation
 
