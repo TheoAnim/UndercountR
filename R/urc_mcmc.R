@@ -2,8 +2,14 @@
 #'
 #' @description
 #' Fits Poisson, zero-inflated Poisson (ZIP), and negative binomial (NB) models
-#' for underreported count data using JAGS. The function selects the most
-#' parsimonious model based on the Deviance Information Criterion (DIC).
+#' for underreported count data using JAGS. Model selection
+#' is performed using the Deviance Information Criterion (DIC), Watanabe-Akaike
+#' Information Criterion (WAIC), and Pareto-smoothed importance sampling
+#' leave-one-out cross-validation (PSIS-LOO). For each criterion, the function
+#' applies a parsimony rule that favors the underreported Poisson model when its
+#' criterion value is within a specified threshold of the minimum value across
+#' the candidate models; otherwise, the model with the minimum criterion value
+#' is selected.
 #'
 #' @param x A named list containing:
 #'   \describe{

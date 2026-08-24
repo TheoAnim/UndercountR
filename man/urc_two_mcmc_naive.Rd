@@ -78,9 +78,12 @@ A named list containing:
 }
 \description{
 Fits Poisson, zero-inflated Poisson (ZIP), and negative binomial (NB)
-models for two independent count samples assuming no underreporting.
-The function compares models using the Deviance Information Criterion
-(DIC), Watanabe-Akaike Information Criterion (WAIC), and
-Pareto-smoothed importance sampling leave-one-out cross-validation
-(PSIS-LOO).
+models for two independent count samples assuming no underreporting. Model selection
+is performed using the Deviance Information Criterion (DIC), Watanabe-Akaike
+Information Criterion (WAIC), and Pareto-smoothed importance sampling
+leave-one-out cross-validation (PSIS-LOO). For each criterion, the function
+applies a parsimony rule that favors the underreported Poisson model when its
+criterion value is within a specified threshold of the minimum value across
+the candidate models; otherwise, the model with the minimum criterion value
+is selected.
 }
