@@ -110,12 +110,13 @@ fit <- urc_mcmc(
     yobs = yobs,
     ystar = ystar,
     yval = yval
-  ),
-  prior_p = "dbeta(22, 18)"
+  )
 )
 ```
 
-If no validation data are available, simply set `ystar` and `yval` to `NA`.
+
+
+If no validation data are available, simply set `ystar` and `yval` to `NA`. At least an informative prior on p provides a usable model.
 
 ```r
 fit <- urc_mcmc(
@@ -123,7 +124,8 @@ fit <- urc_mcmc(
     yobs = yobs,
     ystar = NA,
     yval = NA
-  )
+  ),
+  prior_p = "dbeta(22, 18)"
 )
 ```
 
