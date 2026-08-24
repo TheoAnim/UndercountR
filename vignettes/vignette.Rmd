@@ -115,12 +115,16 @@ data.frame(
 
 ## Fit Model
 
-With validation data available, prior specifications can be noninformative, weakly informative or informative.
+With validation data available, prior specifications can be excluded, noninformative, weakly informative or informative.
 
 ```{r}
-bayes_count_models <- BUCM::urc_mcmc(x = list(ystar = ystar, yval = yval, yobs = yobs), 
-                                    prior_p = "dbeta(22, 18)", 
-                                    prior_lambda = "dgamma(4, 1)")
+set.seed(123)
+bayes_count_models <- BUCM::urc_mcmc(
+  x = list(ystar = ystar, yval = yval, yobs = yobs),
+  prior_p = "dbeta(22, 18)",
+  prior_lambda = "dgamma(4, 1)",
+  thresh = 5
+)
 ```
 
 
@@ -132,7 +136,7 @@ BUCM provides extra diagnostics functions `urc_trace`, `urc_acf`, `urc_density` 
 
 ```{r}
 bayes_count_models$models$poisson |> 
-  BUCM::urc_trace(parameters = c("mu", "lambda", "p"))
+  BUCM::urc_trace(parameters = c("lambda", "p"), alpha = .5)
 ```
 
 **BUCM** is compatible with bayesplot package. Pass array of posterior draws to create trace plots, density, posterior intervals and other diagnostic visualizations. The log-likelihoods are monitored for WAIC and PSIS-LOO computations, so you must explicitly specify the parameters; otherwise, log-likelihoods will be included. 
@@ -148,7 +152,8 @@ bayesplot::mcmc_pairs(jm_poisson_array, pars = c("mu", "lambda", "p"))
 ### Posterior Summaries
 
 ```{r}
-bayes_count_models$models$poisson |> BUCM::urc_posterior_summary()
+bayes_count_models$models$poisson |>
+  BUCM::urc_posterior_summary(exclude = c("mu", "deviance"), digits = 2)
 ```
 
 Posterior summaries can also be obtained using `MCMCvis`.
@@ -211,7 +216,7 @@ bayes_count_models2 <- BUCM::urc_mcmc(
 BUCM also provides two-sample versions of the Poisson, ZIP, and negative
 binomial models, including both naive and underreported models.
 
-See the `urc_two_mcmc()` and `urc_two_mcmc_naive` documentation for the required two-sample data structure.
+See the `urc_two_mcmc()` and `urc_two_mcmc_naive` documentation for the required two-sample implementation structure.
 
 # Citation
 
