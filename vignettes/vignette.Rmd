@@ -263,14 +263,33 @@ bayes_two_count_models <- BUCM::urc_two_mcmc(
   prior_lambda2 = "dgamma(32, 4)"
 )
 ```
+
+Output is a list similar to `urc_mcmc` output. All the steps(diagnostics, model selection and summary) shown above apply.
 ```{r}
 ls(bayes_two_count_models)
 ```
 
-
 ```{r}
 bayes_two_count_models$models$poisson |> BUCM::urc_trace()
 ```
+
+
+Show plausible model selected as being parsimonious or having the smallest criterion value
+
+```{r}
+data.frame(
+  Model = c("DIC", "WAIC", "LOO"),
+  "Best Selected" = c(
+    bayes_two_count_models$dic_best,
+    bayes_two_count_models$waic_best,
+    bayes_two_count_models$loo_best
+  )
+) |>
+  kableExtra::kable(caption = "Plausible model by each selection criterion")
+```
+
+Notice that thresh = 2 is the default and PSIS-LOO identifies the underlying distributions as ZIP. 
+
 
 See the `urc_mcmc_naive()` and `urc_two_mcmc_naive` documentation for the required of the naive case which assumes no underreporting.
 
