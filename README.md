@@ -1,28 +1,48 @@
 # BUCM
 
-**BUCM** (Bayesian Underreported Count Models) is an R package for Bayesian analysis of underreported count data. The package provides a unified framework for fitting one-sample and two-sample count models when observed counts are subject to underreporting. Parameter estimation is performed using Markov chain Monte Carlo (MCMC) methods implemented through JAGS.
+**BUCM** (Bayesian Underreported Count Models) is an R package for Bayesian analysis of count data with and without underreporting. The package provides a framework for fitting one-sample and two-sample count models using Markov chain Monte Carlo (MCMC) methods implemented through JAGS.
 
-The package is designed for researchers and practitioners working with count data in epidemiology, public health, ecology, pharmacovigilance, clinical trials, manufacturing, and other fields where underreporting is common.
+BUCM includes both **naive models**, which assume that the observed counts are fully reported, and **underreported models**, which account for the possibility that only a proportion of the true counts are observed.
+
+Three count distributions are currently supported: Poisson, Zero-Inflated Poisson (ZIP), and Negative Binomial.
 
 ---
 
 ## Features
 
-* Bayesian inference for underreported count models
+* Bayesian inference for count models with and without underreporting
+
 * One-sample and two-sample analyses
+
 * Multiple count distributions
 
   * Poisson
-  * Zero-Inflated Poisson (ZIP)
-  * Negative Binomial
-* MCMC estimation using JAGS
-* Simulation tools for generating underreported count data
-* Model selection using Bayesian criteria
 
-Compatible with other packages for generating:
+  * Zero-Inflated Poisson (ZIP)
+
+  * Negative Binomial
+
+* Naive models that assume no underreporting
+
+* Underreported models with a binomial reporting mechanism
+
+* MCMC estimation using JAGS
+
+* Model comparison using Bayesian criteria
+
+  * Deviance Information Criterion (DIC)
+
+  * Watanabe-Akaike Information Criterion (WAIC)
+
+  * Pareto-Smoothed Importance Sampling Leave-One-Out (PSIS-LOO)
+
+* Parsimonious model selection based on the selected Bayesian criterion
+
+* MCMC diagnostic tools
 
 * Posterior summaries and credible intervals
-* Trace plots, posterior density plots and other diagnostics
+
+* Compatibility with other Bayesian diagnostic and posterior summary packages
 ---
 
 ## Installation
@@ -47,15 +67,16 @@ Install JAGS from:
 
 https://mcmc-jags.sourceforge.io/
 
-
 ---
+
 ## Quick Example
+
+Suppose the true count follows a Poisson distribution with mean $\lambda = 5$ and the probability that an event is reported is $p = 0.7$.
 
 ### Simulate underreported zero-inflated Poisson data
 
 ```r
 library(BUCM)
-library(bizicount)
 library(MCMCVis)
 library(loo)
 
@@ -82,6 +103,7 @@ yobs <- bizicount::rzip(
 
 ### Fit the Bayesian underreported count models
 
+When validation data are available, fit the models using:
 ```r
 fit <- urc_mcmc(
   x = list(
@@ -108,11 +130,22 @@ fit <- urc_mcmc(
 
 ### Model Diagnostics
 
+```r
+fit$models$poisson |>
+  urc_trace(
+    parameters = c("lambda", "p")
+  )
+```
+
 Support call to bayesplot package
 
 ```r
-fit$models$poisson$BUGSoutput$sims.array |> 
-  bayesplot::mcmc_trace(pars = c("lambda", "p"))
+poisson_draws <- fit$models$poisson$BUGSoutput$sims.array
+
+bayesplot::mcmc_trace(
+  poisson_draws,
+  pars = c("lambda", "p")
+)
 ```
 
 
@@ -138,17 +171,35 @@ fit$models$poisson |>
   MCMCvis::MCMCsummary(params = c("p", "lambda"))
 ```
 
+## Model Comparison
+
+BUCM provides model comparison using DIC, WAIC, and PSIS-LOO.
+
+```r
+fit$dics
+fit$waics
+fit$loos
+```
+### Selected Model
+
+```r
+fit$dic_best
+fit$waic_best
+fit$loo_best
+```
+
+The model-selection procedure uses a parsimony rule. For a given criterion, the underreported Poisson model is preferred when its criterion value is sufficiently close to the minimum across the candidate models. Otherwise, the model with the smallest criterion value is selected.
+
 ---
 
 ## Supported Models
 
-| Distribution          | One Sample | Two Sample |
-| --------------------- | :--------: | :--------: |
-| Poisson               |      ✓     |      ✓     |
-| Zero-Inflated Poisson |      ✓     |      ✓     |
-| Negative Binomial     |      ✓     |      ✓     |
+| Distribution          | Naive | Underreported | One Sample | Two Sample |
+| --------------------- | :---: | :-----------: | :--------: | :--------: |
+| Poisson               |   ✓   |       ✓       |      ✓     |      ✓     |
+| Zero-Inflated Poisson |   ✓   |       ✓       |      ✓     |      ✓     |
+| Negative Binomial     |   ✓   |       ✓       |      ✓     |      ✓     |
 
-Additional models will be added in future releases.
 
 ---
 
@@ -168,6 +219,15 @@ BUCM/
 
 ---
 
+### Package Vignette
+
+A more detailed description of the model formulation, model fitting, MCMC diagnostics, posterior summaries, and model selection is provided in the package vignette.
+
+After installing BUCM, the vignette can be accessed using:
+
+```r
+browseVignettes("BUCM")
+```
 
 ## Citation
 
