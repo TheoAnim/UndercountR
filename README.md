@@ -73,7 +73,7 @@ https://mcmc-jags.sourceforge.io/
 
 Suppose the true count follows a Poisson distribution with mean $\lambda = 5$ and the probability that an event is reported is $p = 0.7$.
 
-### Simulate underreported zero-inflated Poisson data
+### Simulate underreported Poisson data
 
 ```r
 library(BUCM)
@@ -85,19 +85,25 @@ set.seed(123)
 # Simulation settings
 lambda <- 5
 p <- 0.7
-pi <- 0.3
 nv <- 100      # Validation sample size
 nobs <- 300    # Non-validation sample size
 
 # Validation sample: latent counts (Y*) and observed counts (Y)
-ystar <- bizicount::rzip(nv, lambda = lambda, psi = pi)
-yval  <- rbinom(nv, size = ystar, prob = p)
+ystar <- rpois(
+  nv,
+  lambda = lambda
+)
 
-# observed counts subject to underreporting
-yobs <- bizicount::rzip(
+yval <- rbinom(
+  nv,
+  size = ystar,
+  prob = p
+)
+
+# Observed counts subject to underreporting
+yobs <- rpois(
   nobs,
-  lambda = lambda * p,
-  psi = pi
+  lambda = lambda * p
 )
 ```
 
