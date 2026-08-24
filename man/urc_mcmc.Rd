@@ -22,7 +22,13 @@ urc_mcmc(
 )
 }
 \arguments{
-\item{x}{A named list containing the data(observed counts, true "unobserved counts" and validation set) to be passed to the JAGS models.}
+\item{x}{A named list containing:
+\describe{
+\item{yobs}{A numeric vector of observed counts subject to underreporting}
+\item{ystar}{A numeric vector of true counts for the validation data.}
+\item{yval}{A numeric vector of validated counts corresponding to
+\code{ystar}.}
+}}
 
 \item{thresh}{Numeric. Threshold for deciding between models when DICs are close.}
 
