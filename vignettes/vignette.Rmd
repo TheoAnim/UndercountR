@@ -150,14 +150,19 @@ bayes_count_models$models$poisson |>
   BUCM::urc_trace(parameters = c("lambda", "p"), alpha = .5)
 ```
 
+```{r}
+bayes_count_models$models$poisson |> 
+  BUCM::urc_density(parameters = c("lambda", "p"), alpha = .5)
+```
+
 **BUCM** is compatible with bayesplot package. Pass array of posterior draws to create trace plots, density, posterior intervals and other diagnostic visualizations. The log-likelihoods are monitored for WAIC and PSIS-LOO computations, so you must explicitly specify the parameters; otherwise, log-likelihoods will be included. 
 ```{r}
 jm_poisson_array <- bayes_count_models$models$poisson$BUGSoutput$sims.array
-bayesplot::mcmc_dens(jm_poisson_array, pars = c("mu", "lambda", "p"))
+bayesplot::mcmc_dens(jm_poisson_array, pars = c("lambda", "p"))
 ```
 
 ```{r}
-bayesplot::mcmc_pairs(jm_poisson_array, pars = c("mu", "lambda", "p"))
+bayesplot::mcmc_acf(jm_poisson_array, pars = c("lambda", "p"))
 ```
 
 ### Posterior Summaries
@@ -293,7 +298,13 @@ data.frame(
   kableExtra::kable(caption = "Plausible model by each selection criterion")
 ```
 
-Notice that thresh = 2 is the default and PSIS-LOO identifies the underlying distributions as ZIP. 
+Notice that thresh = 2 is the default and PSIS-LOO identifies the underlying distributions as ZIP. We can inspect the PSIS-LOO values
+
+```{r}
+bayes_two_count_models$bayes_two_count_models$loos
+```
+
+In this case, it is reasonable to apply the parsimony rule to choose Poisson  as the underlying distribution since the PSIS-LOO value is within 4 units of the ZIP value. 
 
 
 See the `urc_mcmc_naive()` and `urc_two_mcmc_naive` documentation for the required of the naive case which assumes no underreporting.
