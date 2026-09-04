@@ -50,7 +50,7 @@ Install the latest version from **Github**
 
 ```{r, eval = FALSE}
 install.packages("pak")
-pak::pkg_install("TheoAnim/BUCM")
+# pak::pkg_install("TheoAnim/BUCM")
 ```
 
 ## Illustrative Example
@@ -123,7 +123,7 @@ data.frame(
 
 ## Fit Model
 
-With validation data available, prior specifications can be excluded, noninformative, weakly informative or informative.
+With validation data available, prior specifications can be noninformative, weakly informative or informative.
 
 ```{r}
 set.seed(123)
@@ -298,16 +298,15 @@ data.frame(
   kableExtra::kable(caption = "Plausible model by each selection criterion")
 ```
 
-Notice that thresh = 2 is the default and PSIS-LOO identifies the underlying distributions as ZIP. We can inspect the PSIS-LOO values
-
+Notice that thresh = 2 is the default and PSIS-LOO identifies the underlying distributions as ZIP. We can inspect the PSIS-LOO values.
 ```{r}
-bayes_two_count_models$bayes_two_count_models$loos
+bayes_two_count_models$loos
 ```
 
 In this case, it is reasonable to apply the parsimony rule to choose Poisson  as the underlying distribution since the PSIS-LOO value is within 4 units of the ZIP value. 
 
 
-See the `urc_mcmc_naive()` and `urc_two_mcmc_naive` documentation for the required of the naive case which assumes no underreporting.
+See the `urc_mcmc_naive()` and `urc_two_mcmc_naive` documentation for the required use of the naive case which assumes no underreporting.
 
 # Citation
 

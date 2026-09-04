@@ -177,6 +177,10 @@ urc_two_mcmc <- function(x,
   waics <- waic_comparison(models) # creates a df with waic for each model
   loos <- loo_comparison(models)
 
+  rownames(dics) <- NULL
+  rownames(waics) <- NULL
+  rownames(loos) <- NULL
+  
   list(
     models = models,
     dics = dics,

@@ -267,7 +267,9 @@ urc_mcmc_naive <- function(
   waics <- waic_comparison(models)
 
   loos <- loo_comparison(models)
-
+  rownames(dics) <- NULL
+  rownames(waics) <- NULL
+  rownames(loos) <- NULL
   # -------------------------------------------------------------------
   # Return results
   # -------------------------------------------------------------------

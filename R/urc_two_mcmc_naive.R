@@ -252,7 +252,10 @@ urc_two_mcmc_naive <- function(
   # --- WAIC and PSIS-LOO ---
   waics <- waic_comparison(models)
   loos <- loo_comparison(models)
-
+  
+  rownames(dics) <- NULL
+  rownames(waics) <- NULL
+  rownames(loos) <- NULL
   # --- return results ---
   list(
     models = models,
