@@ -49,7 +49,7 @@ Model comparison is available using DIC, WAIC, and PSIS-LOO.
 Install the latest version from **Github**
 
 ```{r, eval = FALSE}
-install.packages("pak")
+# install.packages("pak")
 # pak::pkg_install("TheoAnim/BUCM")
 ```
 
@@ -305,6 +305,80 @@ bayes_two_count_models$loos
 
 In this case, it is reasonable to apply the parsimony rule to choose Poisson  as the underlying distribution since the PSIS-LOO value is within 4 units of the ZIP value. 
 
+
+## Adverse Event Application
+
+We demonstrate the implementation of the package using an adverse event application. We focus on the unequal underreporting scenario presented in the associated article. The implementation for the naive model (i.e., assuming no underreporting) and the equal-reporting model follows similar steps described below.
+
+```{r}
+# load data
+ae_data <- readr::read_csv(
+  "https://raw.githubusercontent.com/ybarmaz/bayesian-ae-reporting/main/data.csv"
+)
+site_3010_ae <- dplyr::filter(ae_data, site_number == "3010")
+site_3069_ae <- dplyr::filter(ae_data, site_number == "3069")
+```
+
+
+Distribution of adverse event counts and the number of patients involved from
+the top two site
+```{r}
+dplyr::bind_rows(
+  data.frame(ae_events = site_3010_ae$ae_count_cumulative, site = "site: 3010"),
+  data.frame(ae_events = site_3069_ae$ae_count_cumulative, site = "site: 3069")
+) |>
+  ggplot2::ggplot() +
+  geom_bar(aes(x = ae_events, fill = site)) +
+  facet_wrap(~site) +
+  theme(legend.position = "none") +
+  labs(x = "adverse events counts", y = "Number of patients")
+```
+
+
+No validation data, assume informative prior on the two reporting probability. 
+```{r}
+ae_unequal_reporting <- BUCM::urc_two_mcmc(
+  x = list(
+    yobs1 = site_3010_ae$ae_count_cumulative,
+    ystar1 = NA,
+    yval1 = NA,
+    yobs2 = site_3069_ae$ae_count_cumulative,
+    ystar2 = NA,
+    yval2 = NA
+  ),
+  thresh = 2,
+  prior_p1 = "dbeta(30, 10)",
+  prior_p2 = "dbeta(22, 18)"
+)
+```
+
+Verify the selected model under each criterion:
+```{r}
+data.frame(
+  Criterion = c("DIC", "WAIC", "PSIS-LOO"),
+  `Selected Model` = c(
+    ae_unequal_reporting$dic_best,
+    ae_unequal_reporting$waic_best,
+    ae_unequal_reporting$loo_best
+  )
+)
+```
+
+Negative binomial is suggested as the plausible model. We can check model diagnostics.
+```{r}
+ae_unequal_reporting$models$negbinom |> BUCM::urc_trace()
+```
+
+```{r}
+ae_unequal_reporting$models$negbinom |> BUCM::urc_density(alpha = .6)
+```
+
+Finally, we can compute the posterior summaries as follows:
+```{r}
+ae_unequal_reporting$models$negbinom |>
+  BUCM::urc_posterior_summary(digits = 2, exclude = "deviance") |>
+  kableExtra::kable(caption = "Unequal underreporting")
+```
 
 See the `urc_mcmc_naive()` and `urc_two_mcmc_naive` documentation for the required use of the naive case which assumes no underreporting.
 
